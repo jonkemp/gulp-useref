@@ -1,0 +1,61 @@
+# [gulp](https://github.com/wearefractal/gulp)-useref
+
+> Parse build blocks in HTML files to replace references to non-optimized scripts or stylesheets with [useref](https://github.com/manuelcabral/useref)
+
+
+## Install
+
+Install with [npm](https://npmjs.org/package/gulp-useref)
+
+```
+npm install --save-dev gulp-useref
+```
+
+
+## Example
+
+```js
+var gulp = require('gulp');
+var useref = require('gulp-useref');
+
+gulp.task('default', function () {
+	gulp.src('./*.html')
+        .pipe(useref())
+        .pipe(gulp.dest('build/'));
+});
+```
+
+
+The build block syntax is `build:type id`. Valid types are `js` and `css`.
+
+    <html>
+    <head>
+        <!-- build:css css/combined.css -->
+        <link href="css/one.css" rel="stylesheet">
+        <link href="css/two.css" rel="stylesheet">
+        <!-- endbuild -->
+    </head>
+    <body>
+        <!-- build:js scripts/combined.js -->
+        <script type="text/javascript" src="scripts/one.js"></script>
+        <script type="text/javascript" src="scripts/two.js"></script>
+        <!-- endbuild -->
+    </body>
+    </html>
+
+
+The resulting HTML would be:
+
+    <html>
+    <head>
+        <link rel="stylesheet" href="css/combined.css"/>
+    </head>
+    <body>
+        <script src="scripts/combined.js"></script>
+    </body>
+    </html>
+
+
+## License
+
+MIT © [Jonathan Kemp](http://jonkemp.com)
