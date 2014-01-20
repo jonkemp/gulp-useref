@@ -2,7 +2,7 @@
 
 > Parse build blocks in HTML files to replace references to non-optimized scripts or stylesheets with [useref](https://github.com/manuelcabral/useref)
 
-Based on the grunt plugin [grunt-useref](https://github.com/pajtai/grunt-useref).
+Inspired by the grunt plugin [grunt-useref](https://github.com/pajtai/grunt-useref), but it does not do file concatenation or minification. You should use other gulp plugins for those tasks.
 
 
 ## Install
