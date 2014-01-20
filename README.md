@@ -2,6 +2,8 @@
 
 > Parse build blocks in HTML files to replace references to non-optimized scripts or stylesheets with [useref](https://github.com/manuelcabral/useref)
 
+Based on the grunt plugin [grunt-useref](https://github.com/pajtai/grunt-useref).
+
 
 ## Install
 
