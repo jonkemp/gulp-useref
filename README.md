@@ -1,6 +1,6 @@
 # [gulp](https://github.com/wearefractal/gulp)-useref [![Build Status](https://travis-ci.org/jonkemp/gulp-useref.png?branch=master)](https://travis-ci.org/jonkemp/gulp-useref)
 
-> Parse build blocks in HTML files to replace references to non-optimized scripts or stylesheets with [useref](https://github.com/manuelcabral/useref)
+> Parse build blocks in HTML files to replace references to non-optimized scripts or stylesheets with [useref](https://github.com/digisfera/useref)
 
 Inspired by the grunt plugin [grunt-useref](https://github.com/pajtai/grunt-useref), but it does not do file concatenation or minification. You should use other gulp plugins for those tasks.
 
