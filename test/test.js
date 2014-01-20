@@ -1,7 +1,7 @@
 /* jshint node: true */
 /* global describe, it */
 
-var assert = require('assert');
+var should = require('should');
 var fs = require('fs');
 var path = require('path');
 var gutil = require('gulp-util');
@@ -28,7 +28,7 @@ function compare(name, expectedName, done) {
 
     stream.on('data', function(newFile) {
         if (path.basename(newFile.path) === name) {
-            assert.equal(String(getExpected(expectedName).contents), String(newFile.contents));
+            should(String(getExpected(expectedName).contents)).eql(String(newFile.contents));
         }
     });
 
@@ -42,6 +42,36 @@ function compare(name, expectedName, done) {
 }
 
 describe('gulp-useref', function() {
+    it('file should pass through', function(done) {
+        var a = 0;
+
+        var fakeFile = new gutil.File({
+            path: './test/fixture/file.js',
+            cwd: './test/',
+            base: './test/fixture/',
+            contents: new Buffer('wadup();')
+        });
+
+        var stream = useref();
+        stream.on('data', function(newFile){
+            should.exist(newFile);
+            should.exist(newFile.path);
+            should.exist(newFile.relative);
+            should.exist(newFile.contents);
+            newFile.path.should.equal('./test/fixture/file.js');
+            newFile.relative.should.equal('file.js');
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(1);
+            done();
+        });
+
+        stream.write(fakeFile);
+        stream.end();
+    });
+
     it('should replace reference in css block and return replaced files', function(done) {
         compare('01.html', '01.html', done);
     });
