@@ -26,9 +26,9 @@
         "optimize"
     ],
     "dependencies": {
-        "map-stream": "~0.0.4",
+        "map-stream": "~0.1.0",
         "gulp-util": "~2.2.0",
-        "useref": "~0.0.1"
+        "useref": "~0.1.0"
     },
     "devDependencies": {
         "mocha": "*",
