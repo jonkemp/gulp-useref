@@ -1,37 +1,41 @@
 {
-    "name": "gulp-useref",
-    "version": "0.1.2",
-    "description": "Parse build blocks in HTML files to replace references to non-optimized scripts or stylesheets.",
-    "license": "MIT",
-    "repository": "jonkemp/gulp-useref",
-    "author": {
-        "name": "Jonathan Kemp",
-        "email": "kempdogg@gmail.com",
-        "url": "http://jonkemp.com"
-    },
-    "engines": {
-        "node": ">=0.10.0"
-    },
-    "scripts": {
-        "test": "mocha"
-    },
-    "files": [
-        "index.js"
-    ],
-    "keywords": [
-        "gulpplugin",
-        "html",
-        "scripts",
-        "css",
-        "optimize"
-    ],
-    "dependencies": {
-        "through2": "~0.4.0",
-        "gulp-util": "~2.2.0",
-        "useref": "~0.1.0"
-    },
-    "devDependencies": {
-        "mocha": "*",
-        "should": "*"
-    }
+  "name": "gulp-useref",
+  "version": "0.1.2",
+  "description": "Parse build blocks in HTML files to replace references to non-optimized scripts or stylesheets.",
+  "license": "MIT",
+  "repository": "jonkemp/gulp-useref",
+  "author": {
+    "name": "Jonathan Kemp",
+    "email": "kempdogg@gmail.com",
+    "url": "http://jonkemp.com"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "files": [
+    "index.js"
+  ],
+  "keywords": [
+    "gulpplugin",
+    "html",
+    "scripts",
+    "css",
+    "optimize"
+  ],
+  "dependencies": {
+    "through2": "~0.4.0",
+    "gulp-util": "~2.2.0",
+    "useref": "~0.1.0"
+  },
+  "devDependencies": {
+    "mocha": "*",
+    "should": "*",
+    "gulp-mocha": "~0.4.1",
+    "gulp-util": "~2.2.14",
+    "gulp": "~3.5.1",
+    "gulp-jshint": "~1.3.4"
+  }
 }
