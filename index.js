@@ -1,19 +1,27 @@
-var map = require('map-stream');
 var gutil = require('gulp-util');
+var through = require('through2');
 var useref = require('useref');
 
 module.exports = function(){
-    return map(function (file, cb){
+    return through.obj(function (file, enc, cb) {
         if (file.isNull()) {
-            return cb(null, file);
+            this.push(file);
+            return cb();
         }
 
         if (file.isStream()) {
-            return cb(new Error('gulp-useref: Streaming not supported'));
+            this.emit('error', new gutil.PluginError('gulp-useref', 'Streaming not supported'));
+            return cb();
         }
 
-        file.contents = new Buffer(useref(file.contents.toString())[0]);
+        try {
+            file.contents = new Buffer(useref(file.contents.toString())[0]);
+        } catch (err) {
+            this.emit('error', new gutil.PluginError('gulp-useref', err));
+        }
 
-        cb(null, file);
+        this.push(file);
+
+        cb();
     });
 };
