@@ -14,7 +14,7 @@ npm install --save-dev gulp-useref
 ```
 
 
-## Example
+## Usage
 
 ```js
 var gulp = require('gulp');
@@ -25,6 +25,28 @@ gulp.task('default', function () {
         .pipe(useref())
         .pipe(gulp.dest('build/'));
 });
+```
+
+You can use gulp-useref by itself with separate tasks for concatenation and minification of files. But if you have multiple build blocks where you want to concat those files separately, you can use [gulp-bundle](https://github.com/jonkemp/gulp-bundle) to handle this.
+
+```js
+var gulp = require('gulp'),
+    useref = require('gulp-useref'),
+    bundle = require('gulp-bundle');
+
+gulp.task('bundle', bundle('./app/*.html', {
+    appDir: 'app',
+    buildDir: 'build',
+    minify: true
+}));
+
+gulp.task('html', function(){
+    return gulp.src('./app/*.html')
+        .pipe(useref())
+        .pipe(gulp.dest('build/'));
+});
+
+gulp.task('build', ['bundle', 'html']);
 ```
 
 
