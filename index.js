@@ -4,9 +4,10 @@ var useref = require('useref');
 var fs = require('fs');
 var path = require('path');
 
-module.exports = function() {
+module.exports = function(opts) {
     var referencesQueue = [];
     var referencesStream = through(function(file) {});
+    var searchPaths = (opts || {}).search || [];
 
     // Enqueue a set of reference to be passed through to the reference stream. This will queue references if the
     // references stream has not yet been accessed. Once accessed, the queue will be emptied, and items passing through
@@ -23,11 +24,31 @@ module.exports = function() {
                         var file = userefReferences.file;
                         var filepaths = group[outputName];
                         var buffer = [];
-                        filepaths.forEach(function (filepath) {
-                            filepath = path.join(file.base, filepath);
-                            try { buffer.push(fs.readFileSync(filepath)); }
-                            catch (err) {
-                                referencesStream.emit('error', new gutil.PluginError('gulp-useref', err));
+                        filepaths.forEach(function (relative) {
+                            var found = false;
+                            var search = searchPaths
+                                .map(function(base) { return path.join(file.cwd, base); })
+                                .concat([file.base]);
+                            search.forEach(function(base) {
+                                var filepath = path.join(base, relative);
+                                try {
+                                    buffer.push(fs.readFileSync(filepath));
+                                    found = true;
+                                }
+                                catch (err) {
+                                    if (err.code == 'ENOENT' && err.syscall == 'open' && err.path) { } // ignore
+                                    else {
+                                        referencesStream.emit('error', new gutil.PluginError('gulp-useref', err));
+                                    }
+                                }
+                                return !found; // break when found
+                            });
+                            if (!found) {
+                                var warning = 'Missing file ' + relative + ' (not in ' + search.join(', ') + ')';
+                                if (referencesStream.listeners('warning').length > 0) {
+                                    referencesStream.emit('warning', warning);
+                                }
+                                else { gutil.log('[useref] ' + gutil.colors.red('Warning: ' + warning)); }
                             }
                         });
                         var joinedAsset = new gutil.File({

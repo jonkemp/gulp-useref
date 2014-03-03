@@ -26,6 +26,7 @@ function getExpected(filePath) {
 function compare(htmlFixture, expectedFixture, done) {
     var stream = useref();
 
+    stream.references().on('warning', function(warning) {}); // ignore warnings
     stream.on('data', function(newFile) {
         if (path.basename(newFile.path) === htmlFixture) {
             should(String(getExpected(expectedFixture).contents)).eql(String(newFile.contents));
@@ -62,7 +63,7 @@ function compareReferences(htmlFixture, assetFixtures, done) {
             ++referencesFileCount;
         });
 
-        references.on('error', function(err) {}); // ignore errors
+        references.on('warning', function(warning) {}); // ignore warnings
         references.once('end', function () {
             referencesFileCount.should.equal(assetFixtures.length);
             done();
@@ -134,10 +135,10 @@ describe('gulp-useref', function() {
         ], done);
     });
 
-    it('emits errors on reference stream when references are not found', function(done) {
+    it('emits warnings on reference stream when references are not found', function(done) {
         referencesStream('04.html', function(stream) {
-            stream.on('error', function(err) {
-                err.message.should.eql("ENOENT, no such file or directory 'test/fixtures/css/four.css'");
+            stream.on('warning', function(warning) {
+                warning.should.eql("Missing file /css/four.css (not in test/fixtures)");
                 done();
             });
         });

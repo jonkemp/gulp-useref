@@ -84,6 +84,17 @@ gulp.task('default', function() {
 });
 ```
 
+## Options
+
+Plugin options:
+
+- `search`
+
+    Additional search paths to find references. By default, the plugin will search for references relative to
+    the base directory of the file that it's processing. Using this option, you can add additional paths to
+    search first. Paths should be specified relative to the `cwd` of a file (which is usually the root of your
+    project). For instance, you may want to look for compiled `sass` or `coffee` files in a build directory, and
+    to do so, you could specify `search: ['build']`.
 
 ## License
 
