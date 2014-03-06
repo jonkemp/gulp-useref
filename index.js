@@ -1,4 +1,3 @@
-'use strict';
 var gutil = require('gulp-util');
 var through = require('through2');
 var useref = require('useref');
@@ -7,6 +6,8 @@ var fs = require('fs');
 
 module.exports = function(){
     return through.obj(function (file, enc, cb) {
+        'use strict';
+
         if (file.isNull()) {
             this.push(file);
             return cb();
