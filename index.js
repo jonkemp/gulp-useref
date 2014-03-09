@@ -5,21 +5,12 @@ var path = require('path');
 var fs = require('fs');
 
 module.exports = function(){
-    return through.obj(function (file, enc, cb) {
-        'use strict';
+    'use strict';
 
-        if (file.isNull()) {
-            this.push(file);
-            return cb();
-        }
+    var restoreStream = through.obj();
 
-        if (file.isStream()) {
-            this.emit('error', new gutil.PluginError('gulp-useref', 'Streaming not supported'));
-            return cb();
-        }
-
+    var streamAssets = through.obj(function (file, enc, cb) {
         var output = useref(file.contents.toString());
-        var html = output[0];
         var assets = output[1];
 
         ['css', 'js'].forEach(function (type) {
@@ -50,6 +41,18 @@ module.exports = function(){
             }
         }.bind(this));
 
+        restoreStream.write(file, cb);
+    });
+
+    var stream = through.obj(function (file, enc, cb) {
+        if (file.isStream()) {
+            this.emit('error', new gutil.PluginError('gulp-useref', 'Streaming not supported'));
+            return cb();
+        }
+
+        var output = useref(file.contents.toString());
+        var html = output[0];
+
         try {
             file.contents = new Buffer(html);
         } catch (err) {
@@ -60,4 +63,14 @@ module.exports = function(){
 
         cb();
     });
+
+    stream.assets = function () {
+        return streamAssets;
+    };
+
+    stream.restore = function () {
+        return restoreStream;
+    };
+
+    return stream;
 };
