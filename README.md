@@ -2,7 +2,7 @@
 
 > Parse build blocks in HTML files to replace references to non-optimized scripts or stylesheets with [useref](https://github.com/digisfera/useref)
 
-Inspired by the grunt plugin [grunt-useref](https://github.com/pajtai/grunt-useref). It will do file concatenation but not minification. Files are then passed down as part of the stream. For minification of assets or other modifications, use [gulp-filter](https://github.com/sindresorhus/gulp-filter) to filter specific types of assets.
+Inspired by the grunt plugin [grunt-useref](https://github.com/pajtai/grunt-useref). It can handle file concatenation but not minification. Files are then passed down the stream. For minification of assets or other modifications, use [gulp-filter](https://github.com/sindresorhus/gulp-filter) to filter specific types of assets.
 
 
 ## Install
@@ -16,7 +16,7 @@ npm install --save-dev gulp-useref
 
 ## Usage
 
-The following example will parse the build blocks in the HTML, replace them and pass those files through. Assets inside the build blocks will be concatenated and passed through as well.
+The following example will parse the build blocks in the HTML, replace them and pass those files through. Assets inside the build blocks will be concatenated and passed through in a stream as well.
 
 ```js
 var gulp = require('gulp'),
@@ -24,6 +24,8 @@ var gulp = require('gulp'),
 
 gulp.task('default', function () {
 	return gulp.src('app/*.html')
+        .pipe(useref.assets())
+        .pipe(useref.restore())
         .pipe(useref())
         .pipe(gulp.dest('dist'));
 });
@@ -43,13 +45,15 @@ gulp.task('html', function () {
     var cssFilter = filter('**/*.css');
 
     return gulp.src('app/*.html')
-        .pipe(useref())
+        .pipe(useref.assets())
         .pipe(jsFilter)
         .pipe(uglify())
         .pipe(jsFilter.restore())
         .pipe(cssFilter)
         .pipe(minifyCss())
         .pipe(cssFilter.restore())
+        .pipe(useref.restore())
+        .pipe(useref())
         .pipe(gulp.dest('dist'));
 });
 ```
@@ -83,6 +87,17 @@ The resulting HTML would be:
         <script src="scripts/combined.js"></script>
     </body>
     </html>
+
+## API
+
+### useref.assets()
+
+Returns a stream with the concatenated asset files from the build blocks inside the HTML.
+
+
+### useref.restore()
+
+Brings back the previously filtered out HTML files.
 
 
 ## License
