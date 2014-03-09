@@ -1,0 +1,10 @@
+.clearfix:after {
+    content: "";
+    display:table;
+    clear:both;
+}
+.ir {
+    text-indent: 100%;
+    white-space:nowrap;
+    overflow:hidden;
+}

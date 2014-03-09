@@ -1,6 +1,6 @@
 {
   "name": "gulp-useref",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Parse build blocks in HTML files to replace references to non-optimized scripts or stylesheets.",
   "license": "MIT",
   "repository": "jonkemp/gulp-useref",
@@ -23,7 +23,8 @@
     "html",
     "scripts",
     "css",
-    "optimize"
+    "optimize",
+    "concat"
   ],
   "dependencies": {
     "through2": "~0.4.0",

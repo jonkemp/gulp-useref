@@ -2,7 +2,7 @@
 
 > Parse build blocks in HTML files to replace references to non-optimized scripts or stylesheets with [useref](https://github.com/digisfera/useref)
 
-Inspired by the grunt plugin [grunt-useref](https://github.com/pajtai/grunt-useref), but it does not do file concatenation or minification. You can use [gulp-bundle](https://github.com/jonkemp/gulp-bundle) or other gulp plugins for those tasks.
+Inspired by the grunt plugin [grunt-useref](https://github.com/pajtai/grunt-useref). It can handle file concatenation but not minification. Files are then passed down the stream. For minification of assets or other modifications, use [gulp-filter](https://github.com/sindresorhus/gulp-filter) to filter specific types of assets.
 
 
 ## Install
@@ -16,37 +16,46 @@ npm install --save-dev gulp-useref
 
 ## Usage
 
+The following example will parse the build blocks in the HTML, replace them and pass those files through. Assets inside the build blocks will be concatenated and passed through in a stream as well.
+
 ```js
-var gulp = require('gulp');
-var useref = require('gulp-useref');
+var gulp = require('gulp'),
+    useref = require('gulp-useref');
 
 gulp.task('default', function () {
-	return gulp.src('./*.html')
+	return gulp.src('app/*.html')
+        .pipe(useref.assets())
+        .pipe(useref.restore())
         .pipe(useref())
-        .pipe(gulp.dest('build/'));
+        .pipe(gulp.dest('dist'));
 });
 ```
 
-You can use gulp-useref by itself with separate tasks for concatenation and minification of files. But if you have multiple build blocks where you want to concat those files separately, you can use [gulp-bundle](https://github.com/jonkemp/gulp-bundle) to handle this.
+If you want to minify your assets or perform some other modification, you can use [gulp-filter](https://github.com/sindresorhus/gulp-filter) to handle specific types of assets. When you want all the original files back, just call the restore method.
 
 ```js
 var gulp = require('gulp'),
     useref = require('gulp-useref'),
-    bundle = require('gulp-bundle');
+    filter = require('gulp-filter'),
+    uglify = require('gulp-uglify'),
+    minifyCss = require('gulp-minify-css');
 
-gulp.task('bundle', bundle('./app/*.html', {
-    appDir: 'app',
-    buildDir: 'build',
-    minify: true
-}));
+gulp.task('html', function () {
+    var jsFilter = filter('**/*.js');
+    var cssFilter = filter('**/*.css');
 
-gulp.task('html', function(){
-    return gulp.src('./app/*.html')
+    return gulp.src('app/*.html')
+        .pipe(useref.assets())
+        .pipe(jsFilter)
+        .pipe(uglify())
+        .pipe(jsFilter.restore())
+        .pipe(cssFilter)
+        .pipe(minifyCss())
+        .pipe(cssFilter.restore())
+        .pipe(useref.restore())
         .pipe(useref())
-        .pipe(gulp.dest('build/'));
+        .pipe(gulp.dest('dist'));
 });
-
-gulp.task('build', ['bundle', 'html']);
 ```
 
 
@@ -78,6 +87,17 @@ The resulting HTML would be:
         <script src="scripts/combined.js"></script>
     </body>
     </html>
+
+## API
+
+### useref.assets()
+
+Returns a stream with the concatenated asset files from the build blocks inside the HTML.
+
+
+### useref.restore()
+
+Brings back the previously filtered out HTML files.
 
 
 ## License
