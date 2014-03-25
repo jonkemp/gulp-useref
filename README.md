@@ -104,6 +104,9 @@ Brings back the previously filtered out HTML files.
 
 * [ClosureCompiler.js](https://github.com/dcodeIO/ClosureCompiler.js) doesn't support Buffers, which means if you want to use [gulp-closure-compiler](https://github.com/sindresorhus/gulp-closure-compiler) you'll have to first write out the `combined.js` to disk. See [this](https://github.com/dcodeIO/ClosureCompiler.js/issues/11) for more information.
 
+## Acknowledgments
+
+* Whitney Young ([@wbyoung](https://github.com/wbyoung)) for suggesting a separate stream for assets and the use of [gulp-filter](https://github.com/sindresorhus/gulp-filter) to filter assets.
 
 ## License
 
