@@ -1,3 +1,4 @@
+'use strict';
 var gutil = require('gulp-util');
 var through = require('through2');
 var useref = require('useref');
@@ -7,7 +8,6 @@ var fs = require('fs');
 var restoreStream = through.obj();
 
 var streamAssets = through.obj(function (file, enc, cb) {
-    'use strict';
     var output = useref(file.contents.toString());
     var assets = output[1];
 
