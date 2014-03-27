@@ -1,6 +1,6 @@
 /* jshint node: true */
 /* global describe, it */
-
+'use strict';
 var should = require('should');
 var fs = require('fs');
 var path = require('path');
@@ -41,7 +41,7 @@ function compare(name, expectedName, done) {
     stream.end();
 }
 
-describe('gulp-useref', function() {
+describe('useref()', function() {
     it('file should pass through', function(done) {
         var a = 0;
 
@@ -54,9 +54,6 @@ describe('gulp-useref', function() {
 
         var stream = useref();
         stream.on('data', function(newFile){
-            should.exist(newFile);
-            should.exist(newFile.path);
-            should.exist(newFile.relative);
             should.exist(newFile.contents);
             newFile.path.should.equal('./test/fixture/file.js');
             newFile.relative.should.equal('file.js');
@@ -87,5 +84,55 @@ describe('gulp-useref', function() {
 
     it('should handle multiple blocks', function(done) {
         compare('04.html', '04.html', done);
+    });
+});
+
+describe('useref.assets()', function() {
+    it('should concat assets and pass them through', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('01.html');
+
+        var stream = useref.assets();
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(1);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+});
+
+describe('useref.restore()', function() {
+    it('should bring back the previously filtered files', function(done) {
+        var testFile = getFixture('01.html');
+
+        var stream = useref.assets();
+        var buffer = [];
+
+        var completeStream = stream.pipe(useref.restore());
+
+        completeStream.on('data', function (file) {
+            buffer.push(file);
+        });
+
+        completeStream.on('end', function () {
+            buffer[0].path.should.equal(path.normalize('./test/fixtures/01.html'));
+            should(String(buffer[0].contents)).eql(String(testFile.contents));
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
     });
 });
