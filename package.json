@@ -9,7 +9,7 @@
   "dependencies": {
     "through2": "~0.4.0",
     "gulp-util": "~2.2.0",
-    "useref": "~0.1.0"
+    "useref": "^0.2.0"
   },
   "devDependencies": {
     "mocha": "*",
