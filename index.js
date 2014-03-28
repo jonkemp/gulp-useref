@@ -4,6 +4,7 @@ var through = require('through2');
 var useref = require('useref');
 var path = require('path');
 var fs = require('fs');
+var glob = require('glob');
 
 var restoreStream = through.obj();
 
@@ -18,10 +19,17 @@ var streamAssets = function () {
                 Object.keys(files).forEach(function (name) {
                     var buffer = [];
                     var filepaths = files[name].assets;
+
+                    var searchPaths;
+                    if (files[name].searchPaths) {
+                        searchPaths = path.join(file.cwd, files[name].searchPaths);
+                    }
+
                     filepaths.forEach(function (filepath) {
-                        filepath = path.join(file.base, filepath);
+                        filepath = path.join((searchPaths || file.base), filepath);
+                        filepath = glob.sync(filepath);
                         try {
-                            buffer.push(fs.readFileSync(filepath));
+                            buffer.push(fs.readFileSync(filepath[0]));
                         } catch (err) {
                             this.emit('error', new gutil.PluginError('gulp-useref', err));
                         }

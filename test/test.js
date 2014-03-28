@@ -10,6 +10,7 @@ var useref = require('../index');
 function getFile(filePath) {
     return new gutil.File({
         path:     filePath,
+        cwd:      './test/',
         base:     path.dirname(filePath),
         contents: fs.readFileSync(filePath)
     });
@@ -98,6 +99,52 @@ describe('useref.assets()', function() {
         stream.on('data', function(newFile){
             should.exist(newFile.contents);
             newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(1);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
+    it('should handle an alternate css search path', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('05.html');
+
+        var stream = useref.assets();
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(1);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
+    it('should handle an alternate js search path', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('06.html');
+
+        var stream = useref.assets();
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            newFile.path.should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
             ++a;
         });
 
