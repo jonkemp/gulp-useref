@@ -8,7 +8,29 @@ var glob = require('glob');
 
 var restoreStream = through.obj();
 
-var streamAssets = function () {
+module.exports = function () {
+    return through.obj(function (file, enc, cb) {
+        if (file.isStream()) {
+            this.emit('error', new gutil.PluginError('gulp-useref', 'Streaming not supported'));
+            return cb();
+        }
+
+        var output = useref(file.contents.toString());
+        var html = output[0];
+
+        try {
+            file.contents = new Buffer(html);
+        } catch (err) {
+            this.emit('error', new gutil.PluginError('gulp-useref', err));
+        }
+
+        this.push(file);
+
+        cb();
+    });
+};
+
+module.exports.assets = function () {
     return through.obj(function (file, enc, cb) {
         var output = useref(file.contents.toString());
         var assets = output[1];
@@ -33,7 +55,7 @@ var streamAssets = function () {
                         } catch (err) {
                             this.emit('error', new gutil.PluginError('gulp-useref', err));
                         }
-                    }.bind(this));
+                    }, this);
 
                     var joinedFile = new gutil.File({
                         cwd: file.cwd,
@@ -44,40 +66,14 @@ var streamAssets = function () {
 
                     this.push(joinedFile);
 
-                }.bind(this));
+                }, this);
             }
-        }.bind(this));
+        }, this);
 
         restoreStream.write(file, cb);
     });
 };
 
-var stream = function () {
-    return through.obj(function (file, enc, cb) {
-        if (file.isStream()) {
-            this.emit('error', new gutil.PluginError('gulp-useref', 'Streaming not supported'));
-            return cb();
-        }
-
-        var output = useref(file.contents.toString());
-        var html = output[0];
-
-        try {
-            file.contents = new Buffer(html);
-        } catch (err) {
-            this.emit('error', new gutil.PluginError('gulp-useref', err));
-        }
-
-        this.push(file);
-
-        cb();
-    });
-};
-
-stream.restore = function () {
+module.exports.restore = function () {
     return restoreStream.pipe(through.obj(), { end: false });
 };
-
-module.exports = stream;
-
-module.exports.assets = streamAssets;
