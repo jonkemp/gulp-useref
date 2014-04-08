@@ -75,7 +75,7 @@ var stream = function () {
 };
 
 stream.restore = function () {
-    return restoreStream;
+    return restoreStream.pipe(through.obj(), { end: false });
 };
 
 module.exports = stream;
