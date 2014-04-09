@@ -102,9 +102,11 @@ The resulting HTML would be:
 
 ## API
 
-### useref.assets()
+### useref.assets(options)
 
-Returns a stream with the concatenated asset files from the build blocks inside the HTML.
+Returns a stream with the concatenated asset files from the build blocks inside the HTML. Available options:
+
+- `searchPath` - Specify the location to search for javascript/css files, relative to the current working directory. Can be a string or array of strings.
 
 
 ### useref.restore()

@@ -30,7 +30,9 @@ module.exports = function () {
     });
 };
 
-module.exports.assets = function () {
+module.exports.assets = function (options) {
+    var opts = options || {};
+
     return through.obj(function (file, enc, cb) {
         var output = useref(file.contents.toString());
         var assets = output[1];
@@ -45,6 +47,14 @@ module.exports.assets = function () {
                     var searchPaths;
                     if (files[name].searchPaths) {
                         searchPaths = path.join(file.cwd, files[name].searchPaths);
+                    } else if (opts.searchPath) {
+                        if (Array.isArray(opts.searchPath)) {
+                            var pathString = '{'+opts.searchPath.join(',')+'}';
+                        } else {
+                            var pathString = opts.searchPath;
+                        }
+
+                        searchPaths = path.join(file.cwd, pathString);
                     }
 
                     filepaths.forEach(function (filepath) {
