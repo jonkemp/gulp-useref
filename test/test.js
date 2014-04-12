@@ -158,7 +158,7 @@ describe('useref.assets()', function() {
         stream.end();
     });
 
-    it('should handle an alternate default search path', function(done) {
+    it('should get the alternate search path from options', function(done) {
         var a = 0;
 
         var testFile = getFixture('07.html');
@@ -169,10 +169,9 @@ describe('useref.assets()', function() {
 
         stream.on('data', function(newFile){
             should.exist(newFile.contents);
-            if (a == 1) {
-                newFile.path.should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
-            }
-            else if (a == 2) {
+            if (a === 1) {
+                newFile.path.should.equal(path.normalize('./test/fixtures/scripts/main.js'));
+            } else if (a === 2) {
                 newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
             }
             ++a;
