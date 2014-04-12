@@ -157,6 +157,36 @@ describe('useref.assets()', function() {
 
         stream.end();
     });
+
+    it('should handle an alternate default search path', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('07.html');
+
+        var stream = useref.assets({
+            searchPath: '.tmp'
+        });
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            if (a == 1) {
+                newFile.path.should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
+            }
+            else if (a == 2) {
+                newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+            }
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(2);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
 });
 
 describe('useref.restore()', function() {
