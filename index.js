@@ -49,12 +49,12 @@ module.exports.assets = function (options) {
                         searchPaths = path.join(file.cwd, files[name].searchPaths);
                     } else if (opts.searchPath) {
                         if (Array.isArray(opts.searchPath)) {
-                            var pathString = '{'+opts.searchPath.join(',')+'}';
+                            searchPaths = '{' + opts.searchPath.join(',') + '}';
                         } else {
-                            var pathString = opts.searchPath;
+                            searchPaths = opts.searchPath;
                         }
 
-                        searchPaths = path.join(file.cwd, pathString);
+                        searchPaths = path.join(file.cwd, searchPaths);
                     }
 
                     filepaths.forEach(function (filepath) {
