@@ -186,6 +186,40 @@ describe('useref.assets()', function() {
 
         stream.end();
     });
+
+
+    it('should handle an alternate search path in multiple build blocks', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('08.html');
+
+        var stream = useref.assets();
+
+        stream.on('data', function(newFile){
+            var assetpath = [
+                './test/fixtures/css/combined.css',
+                './test/fixtures/scripts/combined.min.js',
+                './test/fixtures/scripts/combined2.min.js'
+            ];
+
+            assetpath.forEach(function (filepath) {
+                if (newFile.path === path.normalize(filepath)) {
+                    should.exist(newFile.contents);
+                    newFile.path.should.equal(path.normalize(filepath));
+                    ++a;
+                }
+            });
+        });
+
+        stream.once('end', function () {
+            a.should.equal(3);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
 });
 
 describe('useref.restore()', function() {
