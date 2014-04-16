@@ -220,6 +220,29 @@ describe('useref.assets()', function() {
 
         stream.end();
     });
+
+    it('should ignore build blocks with no assets', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('09.html');
+
+        var stream = useref.assets();
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            newFile.path.should.not.equal(path.normalize('./test/fixtures/css/vendor.css'));
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(0);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
 });
 
 describe('useref.restore()', function() {

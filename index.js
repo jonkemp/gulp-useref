@@ -44,37 +44,39 @@ module.exports.assets = function (options) {
                     var buffer = [];
                     var filepaths = files[name].assets;
 
-                    var searchPaths;
-                    if (files[name].searchPaths) {
-                        searchPaths = path.join(file.cwd, files[name].searchPaths);
-                    } else if (opts.searchPath) {
-                        if (Array.isArray(opts.searchPath)) {
-                            searchPaths = '{' + opts.searchPath.join(',') + '}';
-                        } else {
-                            searchPaths = opts.searchPath;
+                    if (filepaths.length) {
+                        var searchPaths;
+                        if (files[name].searchPaths) {
+                            searchPaths = path.join(file.cwd, files[name].searchPaths);
+                        } else if (opts.searchPath) {
+                            if (Array.isArray(opts.searchPath)) {
+                                searchPaths = '{' + opts.searchPath.join(',') + '}';
+                            } else {
+                                searchPaths = opts.searchPath;
+                            }
+
+                            searchPaths = path.join(file.cwd, searchPaths);
                         }
 
-                        searchPaths = path.join(file.cwd, searchPaths);
+                        filepaths.forEach(function (filepath) {
+                            filepath = path.join((searchPaths || file.base), filepath);
+                            filepath = glob.sync(filepath);
+                            try {
+                                buffer.push(fs.readFileSync(filepath[0]));
+                            } catch (err) {
+                                this.emit('error', new gutil.PluginError('gulp-useref', err));
+                            }
+                        }, this);
+
+                        var joinedFile = new gutil.File({
+                            cwd: file.cwd,
+                            base: file.base,
+                            path: path.join(file.base, name),
+                            contents: new Buffer(buffer.join(gutil.linefeed))
+                        });
+
+                        this.push(joinedFile);
                     }
-
-                    filepaths.forEach(function (filepath) {
-                        filepath = path.join((searchPaths || file.base), filepath);
-                        filepath = glob.sync(filepath);
-                        try {
-                            buffer.push(fs.readFileSync(filepath[0]));
-                        } catch (err) {
-                            this.emit('error', new gutil.PluginError('gulp-useref', err));
-                        }
-                    }, this);
-
-                    var joinedFile = new gutil.File({
-                        cwd: file.cwd,
-                        base: file.base,
-                        path: path.join(file.base, name),
-                        contents: new Buffer(buffer.join(gutil.linefeed))
-                    });
-
-                    this.push(joinedFile);
 
                 }, this);
             }
