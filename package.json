@@ -10,7 +10,7 @@
     "through2": "^0.4.1",
     "gulp-util": "^2.2.14",
     "glob": "^3.2.9",
-    "useref": "^0.2.6"
+    "node-useref": "^0.2.6"
   },
   "devDependencies": {
     "mocha": "*",
