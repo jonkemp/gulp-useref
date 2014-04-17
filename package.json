@@ -17,8 +17,8 @@
     "should": "*",
     "gulp-mocha": "^0.4.1",
     "gulp-util": "^2.2.14",
-    "gulp": "^3.6.0",
-    "gulp-jshint": "^1.5.0"
+    "gulp": "^3.6.1",
+    "gulp-jshint": "^1.5.3"
   },
   "scripts": {
     "test": "mocha"
