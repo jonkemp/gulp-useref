@@ -89,7 +89,7 @@ describe('useref()', function() {
 });
 
 describe('useref.assets()', function() {
-    it('should concat assets and pass them through', function(done) {
+    it('should concat CSS assets and pass them through', function(done) {
         var a = 0;
 
         var testFile = getFixture('01.html');
@@ -99,6 +99,29 @@ describe('useref.assets()', function() {
         stream.on('data', function(newFile){
             should.exist(newFile.contents);
             newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(1);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
+    it('should concat JS assets and pass them through', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('02.html');
+
+        var stream = useref.assets();
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            newFile.path.should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
             ++a;
         });
 
@@ -236,6 +259,29 @@ describe('useref.assets()', function() {
 
         stream.once('end', function () {
             a.should.equal(0);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
+    it('should work with relative paths', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('10.html');
+
+        var stream = useref.assets();
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            newFile.path.should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(1);
             done();
         });
 
