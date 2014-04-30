@@ -60,11 +60,15 @@ module.exports.assets = function (options) {
 
                         filepaths.forEach(function (filepath) {
                             filepath = path.join((searchPaths || file.base), filepath);
-                            filepath = glob.sync(filepath);
-                            try {
-                                buffer.push(fs.readFileSync(filepath[0]));
-                            } catch (err) {
-                                this.emit('error', new gutil.PluginError('gulp-useref', err));
+                            var foundPath = glob.sync(filepath);
+                            if( foundPath.length == 0 ){
+                              this.emit('error', new gutil.PluginError('gulp-useref', 'Unable to find any file with pattern \'' + filepath + '\'.'));
+                            } else {
+                              try {
+                                  buffer.push(fs.readFileSync(foundPath[0]));
+                              } catch (err) {
+                                  this.emit('error', new gutil.PluginError('gulp-useref', err));
+                              }
                             }
                         }, this);
 
