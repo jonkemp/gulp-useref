@@ -59,12 +59,19 @@ module.exports.assets = function (options) {
                         }
 
                         filepaths.forEach(function (filepath) {
-                            filepath = path.join((searchPaths || file.base), filepath);
-                            filepath = glob.sync(filepath);
+                            var pattern = path.join((searchPaths || file.base), filepath);
+                            var filenames = glob.sync(pattern);
+                            if (!filenames.length) {
+                                filenames.push(pattern);
+                            }
                             try {
-                                buffer.push(fs.readFileSync(filepath[0]));
+                                buffer.push(fs.readFileSync(filenames[0]));
                             } catch (err) {
-                                this.emit('error', new gutil.PluginError('gulp-useref', err));
+                                if (err.code === 'ENOENT') {
+                                    this.emit('error', 'gulp-useref: no such file or directory \'' + pattern + '\'');
+                                } else {
+                                    this.emit('error', new gutil.PluginError('gulp-useref', err));
+                                }
                             }
                         }, this);
 
