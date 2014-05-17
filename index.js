@@ -8,8 +8,8 @@ var glob = require('glob');
 
 var restoreStream = through.obj();
 
-module.exports = function () {
-    return through.obj(function (file, enc, cb) {
+module.exports = function() {
+    return through.obj(function(file, enc, cb) {
         if (file.isStream()) {
             this.emit('error', new gutil.PluginError('gulp-useref', 'Streaming not supported'));
             return cb();
@@ -30,17 +30,17 @@ module.exports = function () {
     });
 };
 
-module.exports.assets = function (options) {
+module.exports.assets = function(options) {
     var opts = options || {};
 
-    return through.obj(function (file, enc, cb) {
+    return through.obj(function(file, enc, cb) {
         var output = useref(file.contents.toString());
         var assets = output[1];
 
-        ['css', 'js'].forEach(function (type) {
+        ['css', 'js'].forEach(function(type) {
             var files = assets[type];
             if (files) {
-                Object.keys(files).forEach(function (name) {
+                Object.keys(files).forEach(function(name) {
                     var buffer = [];
                     var filepaths = files[name].assets;
 
@@ -58,7 +58,8 @@ module.exports.assets = function (options) {
                             searchPaths = path.join(file.cwd, searchPaths);
                         }
 
-                        filepaths.forEach(function (filepath) {
+                        var joinedFilePaths = [];
+                        filepaths.forEach(function(filepath) {
                             var pattern = path.join((searchPaths || file.base), filepath);
                             var filenames = glob.sync(pattern);
                             if (!filenames.length) {
@@ -66,6 +67,7 @@ module.exports.assets = function (options) {
                             }
                             try {
                                 buffer.push(fs.readFileSync(filenames[0]));
+                                joinedFilePaths.push(filenames[0]);
                             } catch (err) {
                                 if (err.code === 'ENOENT') {
                                     this.emit('error', 'gulp-useref: no such file or directory \'' + pattern + '\'');
@@ -82,6 +84,10 @@ module.exports.assets = function (options) {
                             contents: new Buffer(buffer.join(gutil.linefeed))
                         });
 
+                        if (opts.storeOriginalSources) {
+                            joinedFile.userefSources = joinedFilePaths;
+                        }
+
                         this.push(joinedFile);
                     }
 
@@ -93,6 +99,6 @@ module.exports.assets = function (options) {
     });
 };
 
-module.exports.restore = function () {
+module.exports.restore = function() {
     return restoreStream.pipe(through.obj(), { end: false });
 };
