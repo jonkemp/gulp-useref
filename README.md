@@ -126,6 +126,10 @@ Brings back the previously filtered out HTML files.
 
 * Whitney Young ([@wbyoung](https://github.com/wbyoung)) for suggesting a separate stream for assets and the use of [gulp-filter](https://github.com/sindresorhus/gulp-filter) to filter assets.
 
+## Contributing
+
+See the [CONTRIBUTING Guidelines](https://github.com/jonkemp/gulp-useref/blob/master/CONTRIBUTING.md)
+
 ## License
 
 MIT © [Jonathan Kemp](http://jonkemp.com)
