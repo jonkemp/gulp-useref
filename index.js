@@ -65,7 +65,9 @@ module.exports.assets = function (options) {
                                 filenames.push(pattern);
                             }
                             try {
-                                buffer.push(fs.readFileSync(filenames[0]));
+                                if(filenames[0]){
+                                    buffer.push(fs.readFileSync(filenames[0]));
+                                }
                             } catch (err) {
                                 if (err.code === 'ENOENT') {
                                     this.emit('error', 'gulp-useref: no such file or directory \'' + pattern + '\'');
