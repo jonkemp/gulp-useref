@@ -58,6 +58,7 @@ module.exports.assets = function (options) {
                             searchPaths = path.join(file.cwd, searchPaths);
                         }
 
+                        var joinedFilePaths = [];
                         filepaths.forEach(function (filepath) {
                             var pattern = path.join((searchPaths || file.base), filepath);
                             var filenames = glob.sync(pattern);
@@ -66,6 +67,7 @@ module.exports.assets = function (options) {
                             }
                             try {
                                 buffer.push(fs.readFileSync(filenames[0]));
+                                joinedFilePaths.push(filenames[0]);
                             } catch (err) {
                                 if (err.code === 'ENOENT') {
                                     this.emit('error', 'gulp-useref: no such file or directory \'' + pattern + '\'');
@@ -81,6 +83,10 @@ module.exports.assets = function (options) {
                             path: path.join(file.base, name),
                             contents: new Buffer(buffer.join(gutil.linefeed))
                         });
+
+                        if (opts.storeOriginalSources) {
+                            joinedFile.userefSources = joinedFilePaths;
+                        }
 
                         this.push(joinedFile);
                     }
