@@ -50,7 +50,11 @@ module.exports.assets = function (options) {
                             searchPaths = path.join(file.cwd, files[name].searchPaths);
                         } else if (opts.searchPath) {
                             if (Array.isArray(opts.searchPath)) {
-                                searchPaths = '{' + opts.searchPath.join(',') + '}';
+                                if (opts.searchPath.length > 1) {
+                                    searchPaths = '{' + opts.searchPath.join(',') + '}';
+                                } else if (opts.searchPath.length === 1) {
+                                    searchPaths = opts.searchPath[0];
+                                }
                             } else {
                                 searchPaths = opts.searchPath;
                             }
