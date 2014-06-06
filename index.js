@@ -63,6 +63,9 @@ module.exports.assets = function (options) {
                         }
 
                         filepaths.forEach(function (filepath) {
+                            if (opts.transformPath) {
+                              filepath = opts.transformPath(filepath);
+                            }
                             var pattern = path.join((searchPaths || file.base), filepath);
                             var filenames = glob.sync(pattern);
                             if (!filenames.length) {
