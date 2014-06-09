@@ -31,27 +31,20 @@ gulp.task('default', function () {
 });
 ```
 
-If you want to minify your assets or perform some other modification, you can use [gulp-filter](https://github.com/sindresorhus/gulp-filter) to handle specific types of assets. When you want all the original files back, just call the restore method.
+If you want to minify your assets or perform some other modification, you can use [gulp-if](https://github.com/robrich/gulp-if) to conditionally handle specific types of assets.
 
 ```js
 var gulp = require('gulp'),
     useref = require('gulp-useref'),
-    filter = require('gulp-filter'),
+    gulpif = require('gulp-if'),
     uglify = require('gulp-uglify'),
     minifyCss = require('gulp-minify-css');
 
 gulp.task('html', function () {
-    var jsFilter = filter('**/*.js');
-    var cssFilter = filter('**/*.css');
-
     return gulp.src('app/*.html')
         .pipe(useref.assets())
-        .pipe(jsFilter)
-        .pipe(uglify())
-        .pipe(jsFilter.restore())
-        .pipe(cssFilter)
-        .pipe(minifyCss())
-        .pipe(cssFilter.restore())
+        .pipe(gulpif('*.js', uglify()))
+        .pipe(gulpif('*.css', minifyCss()))
         .pipe(useref.restore())
         .pipe(useref())
         .pipe(gulp.dest('dist'));
