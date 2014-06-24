@@ -32,12 +32,13 @@ module.exports = function () {
 
 module.exports.assets = function (options) {
     var opts = options || {};
+    var types = opts.types || ['css', 'js'];
 
     return through.obj(function (file, enc, cb) {
         var output = useref(file.contents.toString());
         var assets = output[1];
 
-        ['css', 'js'].forEach(function (type) {
+        types.forEach(function (type) {
             var files = assets[type];
             if (files) {
                 Object.keys(files).forEach(function (name) {
