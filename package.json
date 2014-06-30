@@ -7,10 +7,11 @@
     "test": "test"
   },
   "dependencies": {
-    "through2": "^0.5.1",
-    "gulp-util": "^2.2.14",
     "glob": "^4.0.2",
-    "node-useref": "^0.3.1"
+    "gulp-util": "^2.2.14",
+    "node-useref": "^0.3.1",
+    "strip-bom": "^0.3.1",
+    "through2": "^0.5.1"
   },
   "devDependencies": {
     "mocha": "*",

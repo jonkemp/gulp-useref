@@ -5,6 +5,7 @@ var useref = require('node-useref');
 var path = require('path');
 var fs = require('fs');
 var glob = require('glob');
+var stripBom = require('strip-bom');
 
 var restoreStream = through.obj();
 
@@ -70,7 +71,7 @@ module.exports.assets = function (options) {
                                 filenames.push(pattern);
                             }
                             try {
-                                buffer.push(fs.readFileSync(filenames[0]));
+                                buffer.push(stripBom(fs.readFileSync(filenames[0])));
                             } catch (err) {
                                 if (err.code === 'ENOENT') {
                                     this.emit('error', 'gulp-useref: no such file or directory \'' + pattern + '\'');
