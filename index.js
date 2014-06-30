@@ -1,11 +1,7 @@
 'use strict';
-var gutil = require('gulp-util');
-var through = require('through2');
-var useref = require('node-useref');
-var path = require('path');
-var fs = require('fs');
-var glob = require('glob');
-var stripBom = require('strip-bom');
+var gutil = require('gulp-util'),
+    through = require('through2'),
+    useref = require('node-useref');
 
 var restoreStream = through.obj();
 
@@ -32,8 +28,13 @@ module.exports = function () {
 };
 
 module.exports.assets = function (options) {
-    var opts = options || {};
-    var types = opts.types || ['css', 'js'];
+    var path = require('path'),
+        fs = require('fs'),
+        glob = require('glob'),
+        stripBom = require('strip-bom'),
+        isAbsoluteUrl = require('is-absolute-url'),
+        opts = options || {},
+        types = opts.types || ['css', 'js'];
 
     return through.obj(function (file, enc, cb) {
         var output = useref(file.contents.toString());
@@ -71,7 +72,9 @@ module.exports.assets = function (options) {
                                 filenames.push(pattern);
                             }
                             try {
-                                buffer.push(stripBom(fs.readFileSync(filenames[0])));
+                                if (!isAbsoluteUrl(filenames[0])) {
+                                    buffer.push(stripBom(fs.readFileSync(filenames[0])));
+                                }
                             } catch (err) {
                                 if (err.code === 'ENOENT') {
                                     this.emit('error', 'gulp-useref: no such file or directory \'' + pattern + '\'');

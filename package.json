@@ -9,6 +9,7 @@
   "dependencies": {
     "glob": "^4.0.2",
     "gulp-util": "^2.2.14",
+    "is-absolute-url": "^0.1.0",
     "node-useref": "^0.3.1",
     "strip-bom": "^0.3.1",
     "through2": "^0.5.1"
