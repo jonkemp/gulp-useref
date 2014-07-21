@@ -98,10 +98,13 @@ module.exports.assets = function (options) {
             }
         }, this);
 
-        restoreStream.write(file, cb);
+        var currentRestoreStream = opts.customRestoreStream || restoreStream;
+        currentRestoreStream.write(file, cb);
     });
 };
 
-module.exports.restore = function () {
-    return restoreStream.pipe(through.obj(), { end: false });
+module.exports.restore = function (customRestoreStream) {
+    var currentRestoreStream = customRestoreStream || restoreStream;
+    
+    return currentRestoreStream.pipe(through.obj(), { end: false });
 };
