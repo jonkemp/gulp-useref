@@ -98,7 +98,7 @@ module.exports.assets = function (options) {
             }
         }, this);
 
-        var currentRestoreStream = options.customRestoreStream || restoreStream;
+        var currentRestoreStream = opts.customRestoreStream || restoreStream;
         currentRestoreStream.write(file, cb);
     });
 };
