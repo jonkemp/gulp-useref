@@ -298,7 +298,7 @@ describe('useref.restore()', function() {
         var stream = useref.assets();
         var buffer = [];
 
-        var completeStream = stream.pipe(useref.restore());
+        var completeStream = stream.pipe(stream.restore());
 
         completeStream.on('data', function (file) {
             buffer.push(file);

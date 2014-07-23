@@ -3,8 +3,6 @@ var gutil = require('gulp-util'),
     through = require('through2'),
     useref = require('node-useref');
 
-var restoreStream = through.obj();
-
 module.exports = function () {
     return through.obj(function (file, enc, cb) {
         if (file.isStream()) {
@@ -34,9 +32,10 @@ module.exports.assets = function (options) {
         stripBom = require('strip-bom'),
         isAbsoluteUrl = require('is-absolute-url'),
         opts = options || {},
-        types = opts.types || ['css', 'js'];
+        types = opts.types || ['css', 'js'],
+        restoreStream = through.obj();
 
-    return through.obj(function (file, enc, cb) {
+    var assets = through.obj(function (file, enc, cb) {
         var output = useref(file.contents.toString());
         var assets = output[1];
 
@@ -100,8 +99,10 @@ module.exports.assets = function (options) {
 
         restoreStream.write(file, cb);
     });
-};
 
-module.exports.restore = function () {
-    return restoreStream.pipe(through.obj(), { end: false });
+    assets.restore = function () {
+        return restoreStream.pipe(through.obj(), { end: false });
+    };
+
+    return assets;
 };
