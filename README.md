@@ -23,9 +23,11 @@ var gulp = require('gulp'),
     useref = require('gulp-useref');
 
 gulp.task('default', function () {
+    var assets = useref.assets();
+    
 	return gulp.src('app/*.html')
-        .pipe(useref.assets())
-        .pipe(useref.restore())
+        .pipe(assets)
+        .pipe(assets.restore())
         .pipe(useref())
         .pipe(gulp.dest('dist'));
 });
@@ -41,11 +43,13 @@ var gulp = require('gulp'),
     minifyCss = require('gulp-minify-css');
 
 gulp.task('html', function () {
+    var assets = useref.assets();
+    
     return gulp.src('app/*.html')
-        .pipe(useref.assets())
+        .pipe(assets)
         .pipe(gulpif('*.js', uglify()))
         .pipe(gulpif('*.css', minifyCss()))
-        .pipe(useref.restore())
+        .pipe(assets.restore())
         .pipe(useref())
         .pipe(gulp.dest('dist'));
 });
@@ -106,7 +110,7 @@ Default: `none`
 
 Specify the location to search for asset files, relative to the current working directory. Can be a string or array of strings.
 
-### useref.restore()
+### stream.restore()
 
 Brings back the previously filtered out HTML files.
 
