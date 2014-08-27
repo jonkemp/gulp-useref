@@ -289,6 +289,29 @@ describe('useref.assets()', function() {
 
         stream.end();
     });
+
+    it('should ignore absolute urls', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('remote-path.html');
+
+        var stream = useref.assets();
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(1);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
 });
 
 describe('useref.restore()', function() {

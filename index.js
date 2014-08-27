@@ -47,7 +47,9 @@ module.exports.assets = function (options) {
                     var filepaths = files[name].assets;
 
                     if (filepaths.length) {
-                        var searchPaths;
+                        var searchPaths,
+                            joinedFile;
+
                         if (files[name].searchPaths) {
                             searchPaths = path.join(file.cwd, files[name].searchPaths);
                         } else if (opts.searchPath) {
@@ -65,32 +67,37 @@ module.exports.assets = function (options) {
                         }
 
                         filepaths.forEach(function (filepath) {
-                            var pattern = path.join((searchPaths || file.base), filepath);
-                            var filenames = glob.sync(pattern);
-                            if (!filenames.length) {
-                                filenames.push(pattern);
-                            }
-                            try {
-                                if (!isAbsoluteUrl(filenames[0])) {
-                                    buffer.push(stripBom(fs.readFileSync(filenames[0])));
+                            var pattern,
+                                filenames;
+
+                            if (!isAbsoluteUrl(filepath)) {
+                                pattern = path.join((searchPaths || file.base), filepath);
+                                filenames = glob.sync(pattern);
+                                if (!filenames.length) {
+                                    filenames.push(pattern);
                                 }
-                            } catch (err) {
-                                if (err.code === 'ENOENT') {
-                                    this.emit('error', 'gulp-useref: no such file or directory \'' + pattern + '\'');
-                                } else {
-                                    this.emit('error', new gutil.PluginError('gulp-useref', err));
+                                try {
+                                    buffer.push(stripBom(fs.readFileSync(filenames[0])));
+                                } catch (err) {
+                                    if (err.code === 'ENOENT') {
+                                        this.emit('error', 'gulp-useref: no such file or directory \'' + pattern + '\'');
+                                    } else {
+                                        this.emit('error', new gutil.PluginError('gulp-useref', err));
+                                    }
                                 }
                             }
                         }, this);
 
-                        var joinedFile = new gutil.File({
-                            cwd: file.cwd,
-                            base: file.base,
-                            path: path.join(file.base, name),
-                            contents: new Buffer(buffer.join(gutil.linefeed))
-                        });
+                        if (buffer.length) {
+                            joinedFile = new gutil.File({
+                                cwd: file.cwd,
+                                base: file.base,
+                                path: path.join(file.base, name),
+                                contents: new Buffer(buffer.join(gutil.linefeed))
+                            });
 
-                        this.push(joinedFile);
+                            this.push(joinedFile);
+                        }
                     }
 
                 }, this);
