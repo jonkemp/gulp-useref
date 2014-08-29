@@ -79,11 +79,7 @@ module.exports.assets = function (options) {
                                 try {
                                     buffer.push(stripBom(fs.readFileSync(filenames[0])));
                                 } catch (err) {
-                                    if (err.code === 'ENOENT') {
-                                        this.emit('error', 'gulp-useref: no such file or directory \'' + pattern + '\'');
-                                    } else {
-                                        this.emit('error', new gutil.PluginError('gulp-useref', err));
-                                    }
+                                    this.emit('error', new gutil.PluginError('gulp-useref', err));
                                 }
                             }
                         }, this);
