@@ -28,6 +28,7 @@ module.exports = function () {
 module.exports.assets = function (options) {
     var path = require('path'),
         fs = require('fs'),
+        braceExpandJoin = require('brace-expand-join'),
         glob = require('glob'),
         stripBom = require('strip-bom'),
         isAbsoluteUrl = require('is-absolute-url'),
@@ -51,7 +52,7 @@ module.exports.assets = function (options) {
                             joinedFile;
 
                         if (files[name].searchPaths) {
-                            searchPaths = path.join(file.cwd, files[name].searchPaths);
+                            searchPaths = braceExpandJoin(file.cwd, files[name].searchPaths);
                         } else if (opts.searchPath) {
                             if (Array.isArray(opts.searchPath)) {
                                 if (opts.searchPath.length > 1) {
@@ -63,7 +64,7 @@ module.exports.assets = function (options) {
                                 searchPaths = opts.searchPath;
                             }
 
-                            searchPaths = path.join(file.cwd, searchPaths);
+                            searchPaths = braceExpandJoin(file.cwd, searchPaths);
                         }
 
                         filepaths.forEach(function (filepath) {
@@ -71,7 +72,7 @@ module.exports.assets = function (options) {
                                 filenames;
 
                             if (!isAbsoluteUrl(filepath)) {
-                                pattern = path.join((searchPaths || file.base), filepath);
+                                pattern = braceExpandJoin((searchPaths || file.base), filepath);
                                 filenames = glob.sync(pattern);
                                 if (!filenames.length) {
                                     filenames.push(pattern);
