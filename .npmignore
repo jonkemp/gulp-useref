@@ -2,6 +2,6 @@
 .travis.yml
 .jshintrc
 .gitattributes
-contributing.md
+CONTRIBUTING.md
 gulpfile.js
 test
