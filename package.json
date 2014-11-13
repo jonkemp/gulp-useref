@@ -9,11 +9,12 @@
   "dependencies": {
     "brace-expand-join": "^0.1.0",
     "glob": "^4.0.2",
+    "gulp-concat": "^2.4.1",
     "gulp-util": "^3.0.0",
     "is-absolute-url": "^1.0.0",
     "node-useref": "^0.3.1",
-    "strip-bom": "^1.0.0",
-    "through2": "^0.6.1"
+    "through2": "^0.6.1",
+    "vinyl-fs": "^0.3.13"
   },
   "devDependencies": {
     "mocha": "*",
