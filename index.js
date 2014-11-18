@@ -73,7 +73,7 @@ module.exports.assets = function (options) {
 
                             if (!isAbsoluteUrl(filepath)) {
                                 pattern = braceExpandJoin((searchPaths || file.base), filepath);
-                                filenames = glob.sync(pattern);
+                                filenames = glob.sync(pattern, { nosort: true });
                                 if (!filenames.length) {
                                     filenames.push(pattern);
                                 }
