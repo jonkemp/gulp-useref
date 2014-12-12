@@ -2,7 +2,7 @@
 
 > Parse build blocks in HTML files to replace references to non-optimized scripts or stylesheets with [useref](https://github.com/digisfera/useref)
 
-Inspired by the grunt plugin [grunt-useref](https://github.com/pajtai/grunt-useref). It can handle file concatenation but not minification. Files are then passed down the stream. For minification of assets or other modifications, use [gulp-filter](https://github.com/sindresorhus/gulp-filter) to filter specific types of assets.
+Inspired by the grunt plugin [grunt-useref](https://github.com/pajtai/grunt-useref). It can handle file concatenation but not minification. Files are then passed down the stream. For minification of assets or other modifications, use [gulp-if](https://github.com/robrich/gulp-if) to conditionally handle specific types of assets.
 
 
 ## Install
@@ -121,7 +121,7 @@ Brings back the previously filtered out HTML files.
 
 ## Acknowledgments
 
-* Whitney Young ([@wbyoung](https://github.com/wbyoung)) for suggesting a separate stream for assets and the use of [gulp-filter](https://github.com/sindresorhus/gulp-filter) to filter assets.
+* Whitney Young ([@wbyoung](https://github.com/wbyoung)) for suggesting a separate stream for assets.
 
 ## Contributing
 
