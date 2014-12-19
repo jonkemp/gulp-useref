@@ -32,15 +32,13 @@ module.exports.assets = function () {
         braceExpandJoin = require('brace-expand-join'),
         glob = require('glob'),
         isAbsoluteUrl = require('is-absolute-url'),
-        prepair = [],
-        opts,
-        types,
+        args = Array.prototype.slice.call(arguments),
+        opts = args[0] || {},
+        streams = args.slice(1),
+        types = opts.types || ['css', 'js'],
         restoreStream = through.obj(),
         unprocessed = 0,
         end = false;
-    Array.prototype.push.apply(prepair, arguments);
-    opts = prepair.shift() || {};
-    types = opts.types || ['css', 'js'];
 
     var assets = through.obj(function (file, enc, cb) {
         var output = useref(file.contents.toString());
@@ -57,13 +55,14 @@ module.exports.assets = function () {
             var files = assets[type];
             if (files) {
                 Object.keys(files).forEach(function (name) {
-                    var filepaths = files[name].assets;
+                    var src,
+                        filepaths = files[name].assets;
 
                     if (!filepaths.length) {
-                        unprocessed --;
+                        unprocessed--;
                     } else {
                         var searchPaths,
-                            src = [];
+                            buffer = [];
 
                         if (files[name].searchPaths) {
                             searchPaths = braceExpandJoin(file.cwd, files[name].searchPaths);
@@ -91,35 +90,42 @@ module.exports.assets = function () {
                                 if (!filenames.length) {
                                     filenames.push(pattern);
                                 }
-                                src.push(filenames[0]);
+                                buffer.push(filenames[0]);
                             }
                         }, this);
-                        var self = this;
-                        var stream = vfs.src(src, {base: file.base});
-                        prepair.forEach(function(plugin) {
-                            stream.pipe(plugin);
+
+                        src = vfs.src(buffer, { base: file.base });
+
+                        streams.forEach(function (stream) {
+                            src.pipe(stream);
                         });
 
-                        stream.pipe(concat(name)).pipe(through.obj(function (joinedFile, enc, callback) {
-                            joinedFile.path = path.join(file.base, name);
-                            joinedFile.cwd = file.cwd;
-                            joinedFile.base = file.base;
-                            self.push(joinedFile);
-                            callback(null, joinedFile);
-                        })).on('finish', function() {
-                            if (--unprocessed == 0 && end) {
-                                self.emit('end');
-                            }
-                        });
+                        src
+                            .pipe(concat(name))
+                            .pipe(through.obj(function (joinedFile, enc, callback) {
+                                joinedFile.path = path.join(file.base, name);
+                                joinedFile.cwd = file.cwd;
+                                joinedFile.base = file.base;
+
+                                this.push(joinedFile);
+
+                                callback(null, joinedFile);
+                            }.bind(this)))
+                            .on('finish', function () {
+                                if (--unprocessed === 0 && end) {
+                                    this.emit('end');
+                                }
+                            }.bind(this));
                     }
                 }, this);
             }
         }, this);
 
         restoreStream.write(file, cb);
-    }, function() {
+
+    }, function () {
         end = true;
-        if (unprocessed == 0) {
+        if (unprocessed === 0) {
             this.emit('end');
         }
     });
@@ -130,4 +136,3 @@ module.exports.assets = function () {
 
     return assets;
 };
-
