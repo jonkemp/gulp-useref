@@ -216,7 +216,7 @@ describe('useref.assets()', function() {
         var testFile = getFixture('07.html');
 
         var stream = useref.assets({
-            searchPath: '.{,t{,m}}p,../another/search/path',
+            searchPath: '.{,t{,m}}p,../another/search/path'
         });
 
         stream.on('data', function(newFile){
