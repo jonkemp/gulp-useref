@@ -192,10 +192,13 @@ describe('useref.assets()', function() {
 
         stream.on('data', function(newFile){
             should.exist(newFile.contents);
-            if (a === 1) {
-                newFile.path.should.equal(path.normalize('./test/fixtures/scripts/main.js'));
-            } else if (a === 2) {
-                newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+            switch (newFile.path) {
+                case path.normalize('./test/fixtures/scripts/main.js'):
+                    newFile.path.should.equal(path.normalize('./test/fixtures/scripts/main.js'));
+                    break;
+                case path.normalize('./test/fixtures/css/combined.css'):
+                    newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+                    break;
             }
             ++a;
         });
@@ -221,10 +224,13 @@ describe('useref.assets()', function() {
 
         stream.on('data', function(newFile){
             should.exist(newFile.contents);
-            if (a === 1) {
-                newFile.path.should.equal(path.normalize('./test/fixtures/scripts/main.js'));
-            } else if (a === 2) {
-                newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+            switch (newFile.path) {
+                case path.normalize('./test/fixtures/scripts/main.js'):
+                    newFile.path.should.equal(path.normalize('./test/fixtures/scripts/main.js'));
+                    break;
+                case path.normalize('./test/fixtures/css/combined.css'):
+                    newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+                    break;
             }
             ++a;
         });
