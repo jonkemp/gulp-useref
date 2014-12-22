@@ -1,9 +1,7 @@
 'use strict';
 var gutil = require('gulp-util'),
     through = require('through2'),
-    useref = require('node-useref'),
-    vfs = require('vinyl-fs'),
-    concat = require('gulp-concat');
+    useref = require('node-useref');
 
 module.exports = function () {
     return through.obj(function (file, enc, cb) {
@@ -29,6 +27,9 @@ module.exports = function () {
 
 module.exports.assets = function () {
     var path = require('path'),
+        vfs = require('vinyl-fs'),
+        concat = require('gulp-concat'),
+        gulpif = require('gulp-if'),
         braceExpandJoin = require('brace-expand-join'),
         glob = require('glob'),
         isAbsoluteUrl = require('is-absolute-url'),
@@ -62,7 +63,7 @@ module.exports.assets = function () {
                         unprocessed--;
                     } else {
                         var searchPaths,
-                            buffer = [];
+                            filenames = [];
 
                         if (files[name].searchPaths) {
                             searchPaths = braceExpandJoin(file.cwd, files[name].searchPaths);
@@ -82,34 +83,31 @@ module.exports.assets = function () {
 
                         filepaths.forEach(function (filepath) {
                             var pattern,
-                                filenames;
+                                matches;
 
                             if (!isAbsoluteUrl(filepath)) {
                                 pattern = braceExpandJoin((searchPaths || file.base), filepath);
-                                filenames = glob.sync(pattern, { nosort: true });
-                                if (!filenames.length) {
-                                    filenames.push(pattern);
+                                matches = glob.sync(pattern, { nosort: true });
+                                if (!matches.length) {
+                                    matches.push(pattern);
                                 }
-                                buffer.push(filenames[0]);
+                                filenames.push(matches[0]);
                             }
                         }, this);
 
-                        src = vfs.src(buffer, { base: file.base });
+                        src = vfs.src(filenames, { base: file.base });
 
                         streams.forEach(function (stream) {
                             src.pipe(stream);
                         });
 
                         src
-                            .pipe(concat(name))
-                            .pipe(through.obj(function (joinedFile, enc, callback) {
-                                joinedFile.path = path.join(file.base, name);
-                                joinedFile.cwd = file.cwd;
-                                joinedFile.base = file.base;
+                            .pipe(gulpif(!opts.noconcat, concat(name)))
+                            .pipe(through.obj(function (newFile, enc, callback) {
 
-                                this.push(joinedFile);
+                                this.push(newFile);
 
-                                callback(null, joinedFile);
+                                callback(null, newFile);
                             }.bind(this)))
                             .on('finish', function () {
                                 if (--unprocessed === 0 && end) {

@@ -112,6 +112,33 @@ describe('useref.assets()', function() {
         stream.end();
     });
 
+    it('should skip concatenation and pass CSS assets through with noconcat option', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('01.html');
+
+        var stream = useref.assets({ noconcat: true });
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            if (a === 1) {
+                newFile.path.should.equal(path.join(__dirname, './fixtures/css/two.css'));
+            } else if (a === 2) {
+                newFile.path.should.equal(path.join(__dirname, './fixtures/css/one.css'));
+            }
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(2);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
     it('should concat JS assets and pass them through', function(done) {
         var a = 0;
 
@@ -127,6 +154,33 @@ describe('useref.assets()', function() {
 
         stream.once('end', function () {
             a.should.equal(1);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
+    it('should skip concatenation and pass JS assets through with noconcat option', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('02.html');
+
+        var stream = useref.assets({ noconcat: true });
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            if (a === 1) {
+                newFile.path.should.equal(path.join(__dirname, './fixtures/scripts/that.js'));
+            } else if (a === 2) {
+                newFile.path.should.equal(path.join(__dirname, './fixtures/scripts/this.js'));
+            }
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(2);
             done();
         });
 
