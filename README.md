@@ -110,6 +110,13 @@ Default: `none`
 
 Specify the location to search for asset files, relative to the current working directory. Can be a string or array of strings.
 
+#### options.noconcat
+
+Type: `Boolean`  
+Default: `false`  
+
+Skip concatenation and add all assets to the stream instead.
+
 ### stream.restore()
 
 Brings back the previously filtered out HTML files.
