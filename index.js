@@ -8,7 +8,7 @@ module.exports = function () {
         if (file.isNull()) {
             return cb(null, file);
         }
-        
+
         if (file.isStream()) {
             this.emit('error', new gutil.PluginError('gulp-useref', 'Streaming not supported'));
             return cb();
@@ -34,6 +34,7 @@ module.exports.assets = function (opts) {
     var braceExpandJoin = require('brace-expand-join'),
         concat = require('gulp-concat'),
         gulpif = require('gulp-if'),
+        types = opts.types || ['css', 'js'],
         isRelativeUrl = require('is-relative-url'),
         vfs = require('vinyl-fs'),
         streams = Array.prototype.slice.call(arguments, 1),
@@ -42,23 +43,25 @@ module.exports.assets = function (opts) {
         end = false;
 
     var assets = through.obj(function (file, enc, cb) {
-        var assetMap = useref(file.contents.toString())[1];
+        var output = useref(file.contents.toString());
+        var assets = output[1];
 
-        (opts.types || ['css', 'js']).forEach(function (type) {
-            var files = assetMap[type];
+        types.forEach(function (type) {
+            var files = assets[type];
+
             if (!files) {
                 return;
             }
 
             Object.keys(files).forEach(function (name) {
-                var filepaths = files[name].assets;
+                var src,
+                    globs,
+                    searchPaths,
+                    filepaths = files[name].assets;
 
                 if (!filepaths.length) {
                     return;
                 }
-
-                var src,
-                    searchPaths;
 
                 unprocessed++;
 
@@ -66,7 +69,11 @@ module.exports.assets = function (opts) {
                     searchPaths = braceExpandJoin(file.cwd, files[name].searchPaths);
                 } else if (opts.searchPath) {
                     if (Array.isArray(opts.searchPath)) {
-                        searchPaths = '{' + opts.searchPath.join(',') + '}';
+                        if (opts.searchPath.length > 1) {
+                            searchPaths = '{' + opts.searchPath.join(',') + '}';
+                        } else if (opts.searchPath.length === 1) {
+                            searchPaths = opts.searchPath[0];
+                        }
                     } else {
                         searchPaths = opts.searchPath;
                     }
@@ -78,9 +85,13 @@ module.exports.assets = function (opts) {
                     searchPaths = file.base;
                 }
 
-                src = vfs.src(filepaths.filter(isRelativeUrl).map(function (filepath) {
-                    return braceExpandJoin(searchPaths, filepath);
-                }), {
+                globs = filepaths
+                    .filter(isRelativeUrl)
+                    .map(function (filepath) {
+                        return braceExpandJoin(searchPaths, filepath);
+                    });
+
+                src = vfs.src(globs, {
                     base: file.base,
                     nosort: true,
                     nonull: true
@@ -93,16 +104,18 @@ module.exports.assets = function (opts) {
                 src
                     .pipe(gulpif(!opts.noconcat, concat(name)))
                     .pipe(through.obj(function (newFile, enc, callback) {
-                        assets.push(newFile);
+                        this.push(newFile);
                         callback();
-                    }))
+                    }.bind(this)))
                     .on('finish', function () {
                         if (--unprocessed === 0 && end) {
-                            assets.emit('end');
+                            this.emit('end');
                         }
-                    });
-            });
-        });
+                    }.bind(this));
+
+            }, this);
+
+        }, this);
 
         restoreStream.write(file, cb);
 
