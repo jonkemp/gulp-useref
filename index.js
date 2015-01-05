@@ -5,6 +5,10 @@ var gutil = require('gulp-util'),
 
 module.exports = function () {
     return through.obj(function (file, enc, cb) {
+        if (file.isNull()) {
+            return cb(null, file);
+        }
+        
         if (file.isStream()) {
             this.emit('error', new gutil.PluginError('gulp-useref', 'Streaming not supported'));
             return cb();
@@ -15,109 +19,90 @@ module.exports = function () {
 
         try {
             file.contents = new Buffer(html);
+            this.push(file);
         } catch (err) {
             this.emit('error', new gutil.PluginError('gulp-useref', err));
         }
-
-        this.push(file);
 
         cb();
     });
 };
 
-module.exports.assets = function () {
-    var path = require('path'),
-        vfs = require('vinyl-fs'),
+module.exports.assets = function (opts) {
+    opts = opts || {};
+
+    var braceExpandJoin = require('brace-expand-join'),
         concat = require('gulp-concat'),
         gulpif = require('gulp-if'),
-        braceExpandJoin = require('brace-expand-join'),
-        glob = require('glob'),
-        isAbsoluteUrl = require('is-absolute-url'),
-        args = Array.prototype.slice.call(arguments),
-        opts = args[0] || {},
-        streams = args.slice(1),
-        types = opts.types || ['css', 'js'],
+        isRelativeUrl = require('is-relative-url'),
+        vfs = require('vinyl-fs'),
+        streams = Array.prototype.slice.call(arguments, 1),
         restoreStream = through.obj(),
         unprocessed = 0,
         end = false;
 
     var assets = through.obj(function (file, enc, cb) {
-        var output = useref(file.contents.toString());
-        var assets = output[1];
+        var assetMap = useref(file.contents.toString())[1];
 
-        types.forEach(function (type) {
-            var files = assets[type];
-            if (files) {
-                unprocessed += Object.keys(files).length;
+        (opts.types || ['css', 'js']).forEach(function (type) {
+            var files = assetMap[type];
+            if (!files) {
+                return;
             }
-        });
 
-        types.forEach(function (type) {
-            var files = assets[type];
-            if (files) {
-                Object.keys(files).forEach(function (name) {
-                    var src,
-                        filepaths = files[name].assets;
+            Object.keys(files).forEach(function (name) {
+                var filepaths = files[name].assets;
 
-                    if (!filepaths.length) {
-                        unprocessed--;
+                if (!filepaths.length) {
+                    return;
+                }
+
+                var src,
+                    searchPaths;
+
+                unprocessed++;
+
+                if (files[name].searchPaths) {
+                    searchPaths = braceExpandJoin(file.cwd, files[name].searchPaths);
+                } else if (opts.searchPath) {
+                    if (Array.isArray(opts.searchPath)) {
+                        searchPaths = '{' + opts.searchPath.join(',') + '}';
                     } else {
-                        var searchPaths,
-                            filenames = [];
-
-                        if (files[name].searchPaths) {
-                            searchPaths = braceExpandJoin(file.cwd, files[name].searchPaths);
-                        } else if (opts.searchPath) {
-                            if (Array.isArray(opts.searchPath)) {
-                                if (opts.searchPath.length > 1) {
-                                    searchPaths = '{' + opts.searchPath.join(',') + '}';
-                                } else if (opts.searchPath.length === 1) {
-                                    searchPaths = opts.searchPath[0];
-                                }
-                            } else {
-                                searchPaths = opts.searchPath;
-                            }
-
-                            searchPaths = braceExpandJoin(file.cwd, searchPaths);
-                        }
-
-                        filepaths.forEach(function (filepath) {
-                            var pattern,
-                                matches;
-
-                            if (!isAbsoluteUrl(filepath)) {
-                                pattern = braceExpandJoin((searchPaths || file.base), filepath);
-                                matches = glob.sync(pattern, { nosort: true });
-                                if (!matches.length) {
-                                    matches.push(pattern);
-                                }
-                                filenames.push(matches[0]);
-                            }
-                        }, this);
-
-                        src = vfs.src(filenames, { base: file.base });
-
-                        streams.forEach(function (stream) {
-                            src.pipe(stream);
-                        });
-
-                        src
-                            .pipe(gulpif(!opts.noconcat, concat(name)))
-                            .pipe(through.obj(function (newFile, enc, callback) {
-
-                                this.push(newFile);
-
-                                callback(null, newFile);
-                            }.bind(this)))
-                            .on('finish', function () {
-                                if (--unprocessed === 0 && end) {
-                                    this.emit('end');
-                                }
-                            }.bind(this));
+                        searchPaths = opts.searchPath;
                     }
-                }, this);
-            }
-        }, this);
+
+                    searchPaths = braceExpandJoin(file.cwd, searchPaths);
+                }
+
+                if (!searchPaths) {
+                    searchPaths = file.base;
+                }
+
+                src = vfs.src(filepaths.filter(isRelativeUrl).map(function (filepath) {
+                    return braceExpandJoin(searchPaths, filepath);
+                }), {
+                    base: file.base,
+                    nosort: true,
+                    nonull: true
+                });
+
+                streams.forEach(function (stream) {
+                    src.pipe(stream);
+                });
+
+                src
+                    .pipe(gulpif(!opts.noconcat, concat(name)))
+                    .pipe(through.obj(function (newFile, enc, callback) {
+                        assets.push(newFile);
+                        callback();
+                    }))
+                    .on('finish', function () {
+                        if (--unprocessed === 0 && end) {
+                            assets.emit('end');
+                        }
+                    });
+            });
+        });
 
         restoreStream.write(file, cb);
 
