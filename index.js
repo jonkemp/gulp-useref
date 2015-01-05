@@ -6,12 +6,13 @@ var gutil = require('gulp-util'),
 module.exports = function () {
     return through.obj(function (file, enc, cb) {
         if (file.isNull()) {
-            return cb(null, file);
+            cb(null, file);
+            return;
         }
 
         if (file.isStream()) {
-            this.emit('error', new gutil.PluginError('gulp-useref', 'Streaming not supported'));
-            return cb();
+            cb(new gutil.PluginError('gulp-useref', 'Streaming not supported'));
+            return;
         }
 
         var output = useref(file.contents.toString());
@@ -42,7 +43,7 @@ module.exports.assets = function (opts) {
         unprocessed = 0,
         end = false;
 
-    var assets = through.obj(function (file, enc, cb) {
+    var assetStream = through.obj(function (file, enc, cb) {
         var output = useref(file.contents.toString());
         var assets = output[1];
 
@@ -126,9 +127,9 @@ module.exports.assets = function (opts) {
         }
     });
 
-    assets.restore = function () {
+    assetStream.restore = function () {
         return restoreStream.pipe(through.obj(), { end: false });
     };
 
-    return assets;
+    return assetStream;
 };
