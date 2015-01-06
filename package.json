@@ -7,11 +7,12 @@
     "test": "test"
   },
   "dependencies": {
-    "brace-expand-join": "^0.2.0",
+    "brace-expansion": "^1.1.0",
     "gulp-concat": "^2.4.1",
     "gulp-if": "^1.2.5",
     "gulp-util": "^3.0.1",
     "is-relative-url": "^1.0.0",
+    "lodash": "^2.4.1",
     "node-useref": "^0.3.1",
     "through2": "^0.6.1",
     "vinyl-fs": "^0.3.13"
@@ -24,7 +25,7 @@
     "should": "*"
   },
   "scripts": {
-    "test": "mocha --reporter dot"
+    "test": "gulp test"
   },
   "repository": {
     "type": "git",

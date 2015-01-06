@@ -10,7 +10,7 @@ var useref = require('../index');
 function getFile(filePath) {
     return new gutil.File({
         path:     filePath,
-        cwd:      './test/',
+        cwd:      __dirname,
         base:     path.dirname(filePath),
         contents: fs.readFileSync(filePath)
     });
@@ -268,6 +268,38 @@ describe('useref.assets()', function() {
     });
 
     it('should get the alternate search paths from options with brace expansion', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('alternate-search-paths.html');
+
+        var stream = useref.assets({
+            searchPath: '{.tmp,fixtures}'
+        });
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            switch (newFile.path) {
+                case path.normalize('./test/fixtures/scripts/main.js'):
+                    newFile.path.should.equal(path.normalize('./test/fixtures/scripts/main.js'));
+                    break;
+                case path.normalize('./test/fixtures/css/combined.css'):
+                    newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+                    break;
+            }
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(2);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
+    it('should get assets with parent directory reference using brace expansion', function(done) {
         var a = 0;
 
         var testFile = getFixture('07.html');

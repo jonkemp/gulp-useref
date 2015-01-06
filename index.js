@@ -1,7 +1,19 @@
 'use strict';
 var gutil = require('gulp-util'),
     through = require('through2'),
-    useref = require('node-useref');
+    useref = require('node-useref'),
+    path = require('path');
+
+function getSearchPaths(cwd, searchPath, filepath) {
+    // Check for multiple search paths within the array
+    if (searchPath.indexOf(',') !== -1) {
+        return searchPath.split(',').map(function (nestedSearchPath) {
+            return path.join(cwd, nestedSearchPath, filepath);
+        });
+    } else {
+        return path.join(cwd, searchPath, filepath);
+    }
+}
 
 module.exports = function () {
     return through.obj(function (file, enc, cb) {
@@ -32,7 +44,8 @@ module.exports = function () {
 module.exports.assets = function (opts) {
     opts = opts || {};
 
-    var braceExpandJoin = require('brace-expand-join'),
+    var expand = require('brace-expansion'),
+        _ = require('lodash'),
         concat = require('gulp-concat'),
         gulpif = require('gulp-if'),
         types = opts.types || ['css', 'js'],
@@ -66,33 +79,25 @@ module.exports.assets = function (opts) {
 
                 unprocessed++;
 
-                if (files[name].searchPaths) {
-                    searchPaths = braceExpandJoin(file.cwd, files[name].searchPaths);
-                } else if (opts.searchPath) {
-                    if (Array.isArray(opts.searchPath)) {
-                        if (opts.searchPath.length > 1) {
-                            searchPaths = '{' + opts.searchPath.join(',') + '}';
-                        } else if (opts.searchPath.length === 1) {
-                            searchPaths = opts.searchPath[0];
-                        }
-                    } else {
-                        searchPaths = opts.searchPath;
-                    }
+                searchPaths = files[name].searchPaths || opts.searchPath;
 
-                    searchPaths = braceExpandJoin(file.cwd, searchPaths);
-                }
-
-                if (!searchPaths) {
-                    searchPaths = file.base;
+                if (!Array.isArray(searchPaths)) {
+                    searchPaths = expand(searchPaths);
                 }
 
                 globs = filepaths
                     .filter(isRelativeUrl)
                     .map(function (filepath) {
-                        return braceExpandJoin(searchPaths, filepath);
+                        if (searchPaths.length) {
+                            return searchPaths.map(function (searchPath) {
+                                return getSearchPaths(file.cwd, searchPath, filepath);
+                            });
+                        } else {
+                            return path.join(file.base, filepath);
+                        }
                     });
 
-                src = vfs.src(globs, {
+                src = vfs.src(_.flatten(globs), {
                     base: file.base,
                     nosort: true,
                     nonull: true
