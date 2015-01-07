@@ -81,10 +81,12 @@ module.exports.assets = function (opts) {
 
                 searchPaths = files[name].searchPaths || opts.searchPath;
 
+                // If searchPaths is not an array, use brace-expansion to expand it into an array
                 if (!Array.isArray(searchPaths)) {
                     searchPaths = expand(searchPaths);
                 }
 
+                // Get relative file paths and join with search paths to send to vinyl-fs
                 globs = filepaths
                     .filter(isRelativeUrl)
                     .map(function (filepath) {
@@ -97,16 +99,20 @@ module.exports.assets = function (opts) {
                         }
                     });
 
+                // Flatten nested array before giving it to vinyl-fs
                 src = vfs.src(_.flatten(globs), {
                     base: file.base,
                     nosort: true,
                     nonull: true
                 });
 
+                // If any external streams were included, pipe all files to them first
                 streams.forEach(function (stream) {
                     src.pipe(stream);
                 });
 
+                // Add assets to the stream
+                // If noconcat option is false, concat the files first.
                 src
                     .pipe(gulpif(!opts.noconcat, concat(name)))
                     .pipe(through.obj(function (newFile, enc, callback) {
