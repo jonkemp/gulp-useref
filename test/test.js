@@ -89,6 +89,90 @@ describe('useref()', function() {
 });
 
 describe('useref.assets()', function() {
+
+    it('should return the assets in the order they were found', function(done) {
+        var testOrderFile = getFixture('order.html');
+
+        var stream = useref.assets();
+
+        stream.on('data',function(newFile){
+            should(String(getExpected('css/ordered.css').contents)).eql(String(newFile.contents));
+            done();
+        });
+
+        stream.write(testOrderFile);
+
+        stream.end();
+    });
+
+    it('should expand globs?', function(done) {
+        var testExpandFile = getFixture('expand.html');
+        var stream = useref.assets({noconcat:true});
+
+        var count = 0;
+
+        stream.on('data',function(newFile){
+            count++;
+        });
+
+        stream.on('end', function () {
+            if(count > 1) {
+                done();
+            } else {
+                done(new Error("Did not expand"));
+            }
+        })
+
+        stream.write(testExpandFile);
+
+        stream.end();
+    });
+
+    it('should emit an error with the option mustexist = true if one of the assets is not found', function(done) {
+        var testNonExistentFile = getFixture('nonexistent.html');
+        var stream = useref.assets({mustexist:true});
+
+        var expectedError = null;
+        stream.on('error',function(error){
+            expectedError = error;
+        });
+
+        stream.on('end', function() {
+            if(expectedError == null) {
+                done(new Error("Reached the end without error"));
+            } else {
+                done();
+            }
+        });
+
+        stream.write(testNonExistentFile);
+        stream.end();
+
+    });
+
+    it('should not emit an error with the option mustexist = false  if one of the assets is not found', function(done) {
+        var testNonExistentFile = getFixture('nonexistent.html');
+        var stream = useref.assets({mustexist:false});
+
+        var expectedError = null;
+        stream.on('error',function(error){
+            expectedError = error;
+        });
+
+        stream.on('end', function() {
+            if(expectedError == null) {
+                done();
+            } else {
+                done(new Error("Got error event though mustexist was false"));
+
+            }
+        });
+
+        stream.write(testNonExistentFile);
+        stream.end();
+
+    });
+
     it('should concat CSS assets and pass them through', function(done) {
         var a = 0;
 
