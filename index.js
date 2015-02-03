@@ -106,6 +106,8 @@ module.exports.assets = function (opts) {
                     nonull: true
                 });
 
+                var expectedFile = _.flatten(globs).length;
+
                 // If any external streams were included, pipe all files to them first
                 streams.forEach(function (stream) {
                     src.pipe(stream);
@@ -114,12 +116,20 @@ module.exports.assets = function (opts) {
                 // Add assets to the stream
                 // If noconcat option is false, concat the files first.
                 src
+                    .pipe(through.obj(function (newFile, enc, callback) {
+                        --expectedFile;
+                        this.push(newFile);
+                        callback();
+                    }))
                     .pipe(gulpif(!opts.noconcat, concat(name)))
                     .pipe(through.obj(function (newFile, enc, callback) {
                         this.push(newFile);
                         callback();
                     }.bind(this)))
                     .on('finish', function () {
+                        if (opts.mustexist && expectedFile > 0) {
+                            this.emit('error', new Error(expectedFile + " did not exist"));
+                        }
                         if (--unprocessed === 0 && end) {
                             this.emit('end');
                         }
