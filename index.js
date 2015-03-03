@@ -100,7 +100,7 @@ module.exports.assets = function (opts) {
                     });
 
                 // Flatten nested array before giving it to vinyl-fs
-                src = vfs.src(_.flatten(globs), {
+                src = vfs.src(_.flatten(globs, true), {
                     base: file.base,
                     nosort: true,
                     nonull: true
