@@ -86,6 +86,23 @@ describe('useref()', function() {
     it('should handle multiple blocks', function(done) {
         compare('04.html', '04.html', done);
     });
+
+    it('should handle custom blocks', function (done) {
+        var stream = useref({
+            custom: function (content, target) {
+                return content === 'someContent' ? target : content;
+            }
+        });
+
+        stream.on('data', function (newFile) {
+            getExpected('custom-blocks.html').contents.toString().should.equal(newFile.contents.toString());
+        });
+
+        stream.on('end', done);
+
+        stream.write(getFixture('custom-blocks.html'));
+        stream.end();
+    });
 });
 
 describe('useref.assets()', function() {
@@ -384,6 +401,17 @@ describe('useref.assets()', function() {
 
         stream.write(testFile);
 
+        stream.end();
+    });
+
+    it('should not explode on custom blocks', function (done) {
+        var stream = useref.assets();
+
+        stream.on('end', function () {
+            done();
+        });
+
+        stream.write(getFixture('custom-blocks.html'));
         stream.end();
     });
 

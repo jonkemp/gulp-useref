@@ -15,7 +15,7 @@ function getSearchPaths(cwd, searchPath, filepath) {
     }
 }
 
-module.exports = function () {
+module.exports = function (opts) {
     return through.obj(function (file, enc, cb) {
         if (file.isNull()) {
             cb(null, file);
@@ -27,7 +27,7 @@ module.exports = function () {
             return;
         }
 
-        var output = useref(file.contents.toString());
+        var output = useref(file.contents.toString(), opts);
         var html = output[0];
 
         try {
