@@ -90,6 +90,9 @@ module.exports.assets = function (opts) {
                 globs = filepaths
                     .filter(isRelativeUrl)
                     .map(function (filepath) {
+                        if (opts.transformPath) {
+                            filepath = opts.transformPath(filepath);
+                        }
                         if (searchPaths.length) {
                             return searchPaths.map(function (searchPath) {
                                 return getSearchPaths(file.cwd, searchPath, filepath);
