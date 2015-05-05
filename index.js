@@ -111,7 +111,7 @@ module.exports.assets = function (opts) {
 
                 // If any external streams were included, pipe all files to them first
                 streams.forEach(function (stream) {
-                    src.pipe(stream());
+                    src = src.pipe(stream(name));
                 });
 
                 // Add assets to the stream
