@@ -99,6 +99,10 @@ The resulting HTML would be:
 
 ## API
 
+### useref(options)
+
+Returns a stream with the asset replaced resulting HTML files. Supports all options from [useref](https://github.com/digisfera/useref).
+
 ### useref.assets(options)
 
 Returns a stream with the concatenated asset files from the build blocks inside the HTML.
