@@ -24,8 +24,8 @@ var gulp = require('gulp'),
 
 gulp.task('default', function () {
     var assets = useref.assets();
-    
-	return gulp.src('app/*.html')
+
+    return gulp.src('app/*.html')
         .pipe(assets)
         .pipe(assets.restore())
         .pipe(useref())
@@ -44,7 +44,7 @@ var gulp = require('gulp'),
 
 gulp.task('html', function () {
     var assets = useref.assets();
-    
+
     return gulp.src('app/*.html')
         .pipe(assets)
         .pipe(gulpif('*.js', uglify()))
@@ -54,7 +54,6 @@ gulp.task('html', function () {
         .pipe(gulp.dest('dist'));
 });
 ```
-
 
 Blocks are expressed as:
 
@@ -70,32 +69,36 @@ Blocks are expressed as:
 
 An example of this in completed form can be seen below:
 
-    <html>
-    <head>
-        <!-- build:css css/combined.css -->
-        <link href="css/one.css" rel="stylesheet">
-        <link href="css/two.css" rel="stylesheet">
-        <!-- endbuild -->
-    </head>
-    <body>
-        <!-- build:js scripts/combined.js -->
-        <script type="text/javascript" src="scripts/one.js"></script>
-        <script type="text/javascript" src="scripts/two.js"></script>
-        <!-- endbuild -->
-    </body>
-    </html>
-
+```html
+<html>
+<head>
+    <!-- build:css css/combined.css -->
+    <link href="css/one.css" rel="stylesheet">
+    <link href="css/two.css" rel="stylesheet">
+    <!-- endbuild -->
+</head>
+<body>
+    <!-- build:js scripts/combined.js -->
+    <script type="text/javascript" src="scripts/one.js"></script>
+    <script type="text/javascript" src="scripts/two.js"></script>
+    <!-- endbuild -->
+</body>
+</html>
+```
 
 The resulting HTML would be:
 
-    <html>
-    <head>
-        <link rel="stylesheet" href="css/combined.css"/>
-    </head>
-    <body>
-        <script src="scripts/combined.js"></script>
-    </body>
-    </html>
+```html
+<html>
+<head>
+    <link rel="stylesheet" href="css/combined.css"/>
+</head>
+<body>
+    <script src="scripts/combined.js"></script>
+</body>
+</html>
+```
+
 
 ## API
 
@@ -130,13 +133,16 @@ Brings back the previously filtered out HTML files.
 
 * [ClosureCompiler.js](https://github.com/dcodeIO/ClosureCompiler.js) doesn't support Buffers, which means if you want to use [gulp-closure-compiler](https://github.com/sindresorhus/gulp-closure-compiler) you'll have to first write out the `combined.js` to disk. See [this](https://github.com/dcodeIO/ClosureCompiler.js/issues/11) for more information.
 
+
 ## Acknowledgments
 
 * Whitney Young ([@wbyoung](https://github.com/wbyoung)) for suggesting a separate stream for assets.
 
+
 ## Contributing
 
 See the [CONTRIBUTING Guidelines](https://github.com/jonkemp/gulp-useref/blob/master/CONTRIBUTING.md)
+
 
 ## License
 
