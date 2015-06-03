@@ -116,8 +116,12 @@ module.exports.assets = function (opts) {
 
                 // Add assets to the stream
                 // If noconcat option is false, concat the files first.
+                if (name.indexOf('?') !== -1){
+                    var shortName = name.slice(0, name.indexOf('?'));
+                }
+
                 src
-                    .pipe(gulpif(!opts.noconcat, concat(name)))
+                    .pipe(gulpif(!opts.noconcat, concat(shortName || name)))
                     .pipe(through.obj(function (newFile, enc, callback) {
                         this.push(newFile);
                         callback();
