@@ -124,6 +124,29 @@ Default: `false`
 
 Skip concatenation and add all assets to the stream instead.
 
+#### options.additionalStreams
+
+Type: `Array<Stream>`
+Default: `none`
+
+Use additional streams as sources of assets. Useful for combining gulp-useref with preprocessing tools. For example, to use with TypeScript:
+
+```javascript
+// create stream of virtual files
+var tsStream = gulp.src("src/**/*.ts")
+        .pipe(ts());
+
+    // pass stream to assets, multiple streams are supported
+    var assets = useref.assets({ additionalStreams: [tsStream] });
+
+    // use gulp-useref normally
+    return gulp.src("src/index.html")
+        .pipe(assets)
+        .pipe(assets.restore())
+        .pipe(useref())
+        .pipe(gulp.dest("dist"));
+```
+
 ### stream.restore()
 
 Brings back the previously filtered out HTML files.
