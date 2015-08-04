@@ -57,7 +57,8 @@ module.exports.assets = function (opts) {
         restoreStream = through.obj(),
         unprocessed = 0,
         end = false,
-        additionalFiles = [];
+        additionalFiles = [],
+        waitForAssets;
 
     // If any external streams were included, add matched files to src
     if (opts.additionalStreams) {
@@ -74,7 +75,6 @@ module.exports.assets = function (opts) {
         });
     }
 
-    var waitForAssets;
     if (opts.additionalStreams) {
         // If we have additional streams, wait for them to run before continuing
         waitForAssets = es.merge(opts.additionalStreams).pipe(through.obj());
@@ -86,6 +86,7 @@ module.exports.assets = function (opts) {
 
     var assetStream = through.obj(function (file, enc, cb) {
         var self = this;
+
         waitForAssets.pipe(es.wait(function () {
             var output = useref(file.contents.toString());
             var assets = output[1];
@@ -150,18 +151,19 @@ module.exports.assets = function (opts) {
 
                     // if we added additional files, reorder the stream
                     if (additionalFiles.length > 0) {
-                        var sortIndex = {};
-                        var i = 0;
+                        var sortIndex = {},
+                            i = 0,
+                            sortedFiles = [],
+                            unsortedFiles = [];
 
                         // Create a sort index so we don't iterate over the globs for every file
                         globs.forEach(function (glob) {
                             sortIndex[glob] = i++;
                         });
 
-                        var sortedFiles = [];
-                        var unsortedFiles = [];
                         src = src.pipe(through.obj(function (file, enc, cb) {
                             var index = sortIndex[file.path];
+
                             if (index === undefined) {
                                 unsortedFiles.push(file);
                             } else {
