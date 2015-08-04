@@ -6,6 +6,8 @@ var fs = require('fs');
 var path = require('path');
 var gutil = require('gulp-util');
 var useref = require('../index');
+var gulp = require('gulp');
+var rename = require('gulp-rename');
 
 function getFile(filePath) {
     return new gutil.File({
@@ -486,6 +488,50 @@ describe('useref.assets()', function() {
         stream.write(testFile);
 
         stream.end();
+    });
+
+    it('should support external streams', function(done) {
+        var extStream1 = gulp.src('test/fixtures/scripts/that.js')
+            .pipe(rename('renamedthat.js'));
+
+        var extStream2 = gulp.src('test/fixtures/scripts/yetonemore.js')
+            .pipe(rename('renamedyet.js'));
+
+        var extStream3 = gulp.src('test/fixtures/scripts/yetonemore.js')
+            .pipe(rename('renamedunused.js')); // Only necessary files should be passed down the stream*/
+
+        var fileCount = 0;
+
+        var through = require('through2');
+        var assets = useref.assets({
+            noconcat: true,
+            additionalStreams: [extStream1, extStream2, extStream3]
+        });
+
+        gulp.src('test/fixtures/11.html')
+            .pipe(assets)
+            .pipe(through.obj(function (newFile, enc, callback) {
+                should.exist(newFile.contents);
+
+                switch (fileCount++) { // Order should be maintained
+                    case 0:
+                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/this.js'));
+                        break;
+                    case 1:
+                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/renamedthat.js'));
+                        break;
+                    case 2:
+                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/anotherone.js'));
+                        break;
+                    case 3:
+                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/renamedyet.js'));
+                        break;
+                }
+                callback();
+            }, function () {
+                fileCount.should.equal(4);
+                done();
+            }));
     });
 });
 
