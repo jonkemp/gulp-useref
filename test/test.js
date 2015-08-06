@@ -406,6 +406,33 @@ describe('useref.assets()', function() {
         stream.end();
     });
 
+    it('should understand absolute search paths', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('absolute-search-path.html');
+
+        var searchPath = path.join(__dirname, 'fixtures', 'css');
+
+        var stream = useref.assets({
+            searchPath: searchPath
+        });
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(1);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
     it('should not explode on custom blocks', function (done) {
         var stream = useref.assets();
 
