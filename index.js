@@ -6,13 +6,15 @@ var gutil = require('gulp-util'),
     multimatch = require('multimatch');
 
 function getSearchPaths(cwd, searchPath, filepath) {
+    // Assuming all paths are relative, strip off leading slashes
+    filepath = filepath.replace(/^\/+/, '');
     // Check for multiple search paths within the array
     if (searchPath.indexOf(',') !== -1) {
         return searchPath.split(',').map(function (nestedSearchPath) {
-            return path.join(cwd, nestedSearchPath, filepath);
+            return path.resolve(cwd, nestedSearchPath, filepath);
         });
     } else {
-        return path.join(cwd, searchPath, filepath);
+        return path.resolve(cwd, searchPath, filepath);
     }
 }
 
