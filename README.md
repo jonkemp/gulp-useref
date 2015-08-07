@@ -126,7 +126,7 @@ Skip concatenation and add all assets to the stream instead.
 
 #### options.additionalStreams
 
-Type: `Array<Stream>`
+Type: `Array<Stream>`  
 Default: `none`
 
 Use additional streams as sources of assets. Useful for combining gulp-useref with preprocessing tools. For example, to use with TypeScript:

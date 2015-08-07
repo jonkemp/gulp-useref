@@ -8,6 +8,7 @@ var gutil = require('gulp-util'),
 function getSearchPaths(cwd, searchPath, filepath) {
     // Assuming all paths are relative, strip off leading slashes
     filepath = filepath.replace(/^\/+/, '');
+
     // Check for multiple search paths within the array
     if (searchPath.indexOf(',') !== -1) {
         return searchPath.split(',').map(function (nestedSearchPath) {
