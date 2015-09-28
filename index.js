@@ -3,7 +3,9 @@ var gutil = require('gulp-util'),
     through = require('through2'),
     useref = require('node-useref'),
     path = require('path'),
-    multimatch = require('multimatch');
+    multimatch = require('multimatch'),
+    path = require('path'),
+    fs = require('fs');
 
 function getSearchPaths(cwd, searchPath, filepath) {
     // Assuming all paths are relative, strip off leading slashes
@@ -128,16 +130,27 @@ module.exports.assets = function (opts) {
                                 filepath = opts.transformPath(filepath);
                             }
                             if (searchPaths.length) {
-                                return searchPaths.map(function (searchPath) {
-                                    return getSearchPaths(file.cwd, searchPath, filepath);
-                                });
+                                // Using multiple search paths to find the file, consider only the first one
+                                for(var i in searchPaths){
+                                  var _filePath = getSearchPaths(file.cwd, searchPaths[i], filepath);
+
+                                    // if is an array, parse the array to find the first valid file
+                                    if(Array.isArray(_filePath)) for(var j in _filePath){
+                                        if(fs.existsSync(_filePath[j])) return _filePath[j];
+                                    }
+                                    // if is not an array, verify if is a valid file
+                                    else if(fs.existsSync(_filePath)) return _filePath;
+                                }
+                                // return null if there is no valid file
+                                return null;
                             } else {
                                 return path.join(file.base, filepath);
                             }
-                        });
+                        }).filter(function(n){ return n != undefined });
 
                     // Flatten nested array before giving it to vinyl-fs
                     globs = _.flatten(globs, true);
+
                     src = vfs.src(globs, {
                         base: file.base,
                         nosort: true,
