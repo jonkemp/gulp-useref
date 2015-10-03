@@ -20,8 +20,8 @@
     "vinyl-fs": "^1.0.0"
   },
   "devDependencies": {
-    "gulp": "^3.8.11",
-    "gulp-jscs": "^2.0.0",
+    "gulp": "^3.9.0",
+    "gulp-jscs": "^3.0.1",
     "gulp-jshint": "^1.9.0",
     "gulp-mocha": "^2.0.0",
     "gulp-rename": "^1.2.2",
