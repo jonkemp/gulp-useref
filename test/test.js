@@ -497,7 +497,7 @@ describe('useref.assets()', function() {
 
         var stream = useref.assets({
             transformPath : function(filePath) {
-                return filePath.replace('/rootpath','')
+                return filePath.replace('/rootpath','');
             }
         });
 
