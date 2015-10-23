@@ -188,7 +188,9 @@ module.exports.assets = function (opts) {
                 });
             });
 
-            restoreStream.write(file, cb);
+            restoreStream.write(file);
+
+            cb();
         }));
     }, function () {
         end = true;
