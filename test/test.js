@@ -324,7 +324,7 @@ describe('useref.assets()', function() {
         var testFile = getFixture('07.html');
 
         var stream = useref.assets({
-            searchPath: '.{,t{,m}}p,../another/search/path'
+            searchPath: '{.{,t{,m}}p,../another/search/path}'
         });
 
         stream.on('data', function(newFile){
@@ -524,15 +524,12 @@ describe('useref.assets()', function() {
         var extStream2 = gulp.src('test/fixtures/scripts/yetonemore.js')
             .pipe(rename('renamedyet.js'));
 
-        var extStream3 = gulp.src('test/fixtures/scripts/yetonemore.js')
-            .pipe(rename('renamedunused.js')); // Only necessary files should be passed down the stream*/
-
         var fileCount = 0;
 
         var through = require('through2');
         var assets = useref.assets({
             noconcat: true,
-            additionalStreams: [extStream1, extStream2, extStream3]
+            additionalStreams: [extStream1, extStream2]
         });
 
         gulp.src('test/fixtures/11.html')
@@ -545,10 +542,10 @@ describe('useref.assets()', function() {
                         newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/this.js'));
                         break;
                     case 1:
-                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/renamedthat.js'));
+                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/anotherone.js'));
                         break;
                     case 2:
-                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/anotherone.js'));
+                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/renamedthat.js'));
                         break;
                     case 3:
                         newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/renamedyet.js'));

@@ -23,7 +23,7 @@ gulp.task('jscs', function () {
 
 gulp.task('test', function () {
     return gulp.src('./test/*.js')
-        .pipe(mocha({reporter: 'dot'}));
+        .pipe(mocha({ reporter: 'spec' }));
 });
 
 gulp.task('watch', function () {

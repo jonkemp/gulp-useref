@@ -1,23 +1,7 @@
 'use strict';
 var gutil = require('gulp-util'),
     through = require('through2'),
-    useref = require('node-useref'),
-    path = require('path'),
-    multimatch = require('multimatch');
-
-function getSearchPaths(cwd, searchPath, filepath) {
-    // Assuming all paths are relative, strip off leading slashes
-    filepath = filepath.replace(/^\/+/, '');
-
-    // Check for multiple search paths within the array
-    if (searchPath.indexOf(',') !== -1) {
-        return searchPath.split(',').map(function (nestedSearchPath) {
-            return path.resolve(cwd, nestedSearchPath, filepath);
-        });
-    } else {
-        return path.resolve(cwd, searchPath, filepath);
-    }
-}
+    useref = require('node-useref');
 
 module.exports = function (opts) {
     return through.obj(function (file, enc, cb) {
@@ -48,12 +32,12 @@ module.exports = function (opts) {
 module.exports.assets = function (opts) {
     opts = opts || {};
 
-    var expand = require('brace-expansion'),
-        _ = require('lodash'),
+    var path = require('path'),
         concat = require('gulp-concat'),
         gulpif = require('gulp-if'),
         es = require('event-stream'),
         types = opts.types || ['css', 'js'],
+        glob = require('glob'),
         isRelativeUrl = require('is-relative-url'),
         vfs = require('vinyl-fs'),
         transforms = Array.prototype.slice.call(arguments, 1),
@@ -113,31 +97,27 @@ module.exports.assets = function (opts) {
 
                     unprocessed++;
 
-                    searchPaths = files[name].searchPaths || opts.searchPath;
-
-                    // If searchPaths is not an array, use brace-expansion to expand it into an array
-                    if (!Array.isArray(searchPaths)) {
-                        searchPaths = expand(searchPaths);
+                    if (files[name].searchPaths || opts.searchPath) {
+                        searchPaths = path.resolve(file.cwd, files[name].searchPaths || opts.searchPath);
                     }
 
                     // Get relative file paths and join with search paths to send to vinyl-fs
                     globs = filepaths
                         .filter(isRelativeUrl)
                         .map(function (filepath) {
+                            var pattern = path.join((searchPaths || file.base), filepath),
+                                matches = glob.sync(pattern, { nosort: true });
+
+                            if (!matches.length) {
+                                matches.push(pattern);
+                            }
                             if (opts.transformPath) {
-                                filepath = opts.transformPath(filepath);
+                                matches[0] = opts.transformPath(matches[0]);
                             }
-                            if (searchPaths.length) {
-                                return searchPaths.map(function (searchPath) {
-                                    return getSearchPaths(file.cwd, searchPath, filepath);
-                                });
-                            } else {
-                                return path.join(file.base, filepath);
-                            }
+
+                            return matches[0];
                         });
 
-                    // Flatten nested array before giving it to vinyl-fs
-                    globs = _.flatten(globs, true);
                     src = vfs.src(globs, {
                         base: file.base,
                         nosort: true,
@@ -146,10 +126,7 @@ module.exports.assets = function (opts) {
 
                     // add files from external streams
                     additionalFiles.forEach(function (file) {
-                        // check if file should be included
-                        if (multimatch(file.path, globs).length > 0) {
-                            src.push(file);
-                        }
+                        src.push(file);
                     });
 
                     // if we added additional files, reorder the stream
@@ -160,8 +137,8 @@ module.exports.assets = function (opts) {
                             unsortedFiles = [];
 
                         // Create a sort index so we don't iterate over the globs for every file
-                        globs.forEach(function (glob) {
-                            sortIndex[glob] = i++;
+                        globs.forEach(function (filename) {
+                            sortIndex[filename] = i++;
                         });
 
                         src = src.pipe(through.obj(function (file, enc, cb) {
@@ -209,7 +186,6 @@ module.exports.assets = function (opts) {
                         });
 
                 });
-
             });
 
             restoreStream.write(file, cb);
