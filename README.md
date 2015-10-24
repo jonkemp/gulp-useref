@@ -33,6 +33,23 @@ gulp.task('default', function () {
 });
 ```
 
+With options:
+
+```js
+var gulp = require('gulp'),
+    useref = require('gulp-useref');
+
+gulp.task('default', function () {
+    var assets = useref.assets({ searchPath: '.tmp' });
+
+    return gulp.src('app/*.html')
+        .pipe(assets)
+        .pipe(assets.restore())
+        .pipe(useref())
+        .pipe(gulp.dest('dist'));
+});
+```
+
 If you want to minify your assets or perform some other modification, you can use [gulp-if](https://github.com/robrich/gulp-if) to conditionally handle specific types of assets.
 
 ```js
@@ -106,9 +123,33 @@ The resulting HTML would be:
 
 Returns a stream with the asset replaced resulting HTML files. Supports all options from [useref](https://github.com/digisfera/useref).
 
-### useref.assets(options)
+### useref.assets(options [, transformStream1 [, transformStream2 [, ... ]]])
 
 Returns a stream with the concatenated asset files from the build blocks inside the HTML.
+
+### Transform Streams
+
+Type: `Stream`  
+Default: `none`
+
+Transform assets before concat. For example, to integrate source maps:
+
+```js
+var gulp = require('gulp'),
+    sourcemaps = require('gulp-sourcemaps'),
+    useref = require('gulp-useref'),
+    lazypipe = require('lazypipe'),
+    assets = useref.assets({}, lazypipe().pipe(sourcemaps.init, { loadMaps: true }));
+
+  return gulp.src('index.html')
+    .pipe(assets)
+    .pipe(sourcemaps.write('maps'))
+    .pipe(assets.restore())
+    .pipe(useref())
+    .pipe(gulp.dest(dist));
+```
+
+### Options
 
 #### options.searchPath
 
@@ -145,6 +186,32 @@ var tsStream = gulp.src('src/**/*.ts')
         .pipe(assets.restore())
         .pipe(useref())
         .pipe(gulp.dest('dist'));
+```
+
+#### options.transformPath
+
+Type: `Function`  
+Default: `none`
+
+Add a transformPath function in case the path needs to be modified before search happens.
+
+```js
+var gulp = require('gulp'),
+    useref = require('gulp-useref');
+
+gulp.task('default', function () {
+    var assets = useref.assets({
+        transformPath: function(filePath) {
+            return filePath.replace('/rootpath','')
+        }
+    });
+
+    return gulp.src('app/*.html')
+        .pipe(assets)
+        .pipe(assets.restore())
+        .pipe(useref())
+        .pipe(gulp.dest('dist'));
+});
 ```
 
 ### stream.restore()
