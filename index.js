@@ -124,6 +124,8 @@ module.exports.assets = function (opts) {
                         nonull: true
                     });
 
+                    var expectedFile = globs.length;
+
                     // add files from external streams
                     additionalFiles.forEach(function (file) {
                         src.push(file);
@@ -172,6 +174,11 @@ module.exports.assets = function (opts) {
                     // Add assets to the stream
                     // If noconcat option is false, concat the files first.
                     src
+                        .pipe(through.obj(function (newFile, enc, callback) {
+                            --expectedFile;
+                            this.push(newFile);
+                            callback();
+                        }))
                         .pipe(gulpif(!opts.noconcat, concat(name)))
                         .pipe(through.obj(function (newFile, enc, callback) {
                             // add file to the asset stream
@@ -179,6 +186,9 @@ module.exports.assets = function (opts) {
                             callback();
                         }))
                         .on('finish', function () {
+                            if (opts.mustexist && expectedFile > 0) {
+                                self.emit('error', new Error(expectedFile + ' did not exist'));
+                            }
                             if (--unprocessed === 0 && end) {
                                 // end the asset stream
                                 self.emit('end');
