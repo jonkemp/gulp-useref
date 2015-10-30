@@ -124,67 +124,13 @@ describe('useref.assets()', function() {
         stream.end();
     });
 
-    it('should expand globs?', function(done) {
-        var testExpandFile = getFixture('expand.html');
-        var stream = useref.assets({noconcat:true});
-
-        var count = 0;
-
-        stream.on('data',function(newFile){
-            count++;
-        });
-
-        stream.on('end', function () {
-            if(count > 1) {
-                done();
-            } else {
-                done(new Error("Did not expand"));
-            }
-        })
-
-        stream.write(testExpandFile);
-
-        stream.end();
-    });
-
-    it('should emit an error with the option mustexist = true if one of the assets is not found', function(done) {
+    it('should emit an error if one of the assets is not found', function(done) {
         var testNonExistentFile = getFixture('nonexistent.html');
-        var stream = useref.assets({mustexist:true});
+        var stream = useref.assets();
 
-        var expectedError = null;
-        stream.on('error',function(error){
-            expectedError = error;
-        });
-
-        stream.on('end', function() {
-            if(expectedError == null) {
-                done(new Error("Reached the end without error"));
-            } else {
-                done();
-            }
-        });
-
-        stream.write(testNonExistentFile);
-        stream.end();
-
-    });
-
-    it('should not emit an error with the option mustexist = false  if one of the assets is not found', function(done) {
-        var testNonExistentFile = getFixture('nonexistent.html');
-        var stream = useref.assets({mustexist:false});
-
-        var expectedError = null;
-        stream.on('error',function(error){
-            expectedError = error;
-        });
-
-        stream.on('end', function() {
-            if(expectedError == null) {
-                done();
-            } else {
-                done(new Error("Got error event though mustexist was false"));
-
-            }
+        stream.on('error', function(err) {
+            err.should.match(/File not found with singular glob/);
+            done();
         });
 
         stream.write(testNonExistentFile);
