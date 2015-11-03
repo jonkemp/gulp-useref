@@ -108,36 +108,6 @@ describe('useref()', function() {
 });
 
 describe('useref.assets()', function() {
-
-    it('should return the assets in the order they were found', function(done) {
-        var testOrderFile = getFixture('order.html');
-
-        var stream = useref.assets();
-
-        stream.on('data',function(newFile){
-            should(String(getExpected('css/ordered.css').contents)).eql(String(newFile.contents));
-            done();
-        });
-
-        stream.write(testOrderFile);
-
-        stream.end();
-    });
-
-    it('should emit an error if one of the assets is not found', function(done) {
-        var testNonExistentFile = getFixture('nonexistent.html');
-        var stream = useref.assets();
-
-        stream.on('error', function(err) {
-            err.should.match(/File not found with singular glob/);
-            done();
-        });
-
-        stream.write(testNonExistentFile);
-        stream.end();
-
-    });
-
     it('should concat CSS assets and pass them through', function(done) {
         var a = 0;
 
@@ -284,13 +254,45 @@ describe('useref.assets()', function() {
         stream.end();
     });
 
-    it('should get the alternate search path from options', function(done) {
+    it('should get the alternate search path from options via string', function(done) {
         var a = 0;
 
         var testFile = getFixture('07.html');
 
         var stream = useref.assets({
             searchPath: '.tmp'
+        });
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            switch (newFile.path) {
+                case path.normalize('./test/fixtures/scripts/main.js'):
+                    newFile.path.should.equal(path.normalize('./test/fixtures/scripts/main.js'));
+                    break;
+                case path.normalize('./test/fixtures/css/combined.css'):
+                    newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+                    break;
+            }
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(2);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
+    it('should get the alternate search path from options via array', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('alternate-search-paths.html');
+
+        var stream = useref.assets({
+            searchPath: ['.tmp', 'fixtures']
         });
 
         stream.on('data', function(newFile){
@@ -545,6 +547,35 @@ describe('useref.assets()', function() {
         stream.write(testFile);
 
         stream.end();
+    });
+
+    it('should return the assets in the order they were found', function(done) {
+        var testOrderFile = getFixture('order.html');
+
+        var stream = useref.assets();
+
+        stream.on('data',function(newFile){
+            should(String(getExpected('css/ordered.css').contents)).eql(String(newFile.contents));
+            done();
+        });
+
+        stream.write(testOrderFile);
+
+        stream.end();
+    });
+
+    it('should emit an error if one of the assets is not found', function(done) {
+        var testNonExistentFile = getFixture('nonexistent.html');
+        var stream = useref.assets();
+
+        stream.on('error', function(err) {
+            err.should.match(/File not found with singular glob/);
+            done();
+        });
+
+        stream.write(testNonExistentFile);
+        stream.end();
+
     });
 
     it('should support external streams', function(done) {

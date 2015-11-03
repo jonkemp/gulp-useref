@@ -98,6 +98,9 @@ module.exports.assets = function (opts) {
                     unprocessed++;
 
                     if (files[name].searchPaths || opts.searchPath) {
+                        if (opts.searchPath && Array.isArray(opts.searchPath)) {
+                            opts.searchPath = '{' + opts.searchPath.join(',') + '}';
+                        }
                         searchPaths = path.resolve(file.cwd, files[name].searchPaths || opts.searchPath);
                     }
 
