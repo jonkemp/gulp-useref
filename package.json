@@ -24,6 +24,7 @@
     "gulp-mocha": "^2.0.0",
     "gulp-rename": "^1.2.2",
     "mocha": "*",
+    "mock-gulp-dest": "^0.1.1",
     "should": "*"
   },
   "scripts": {
