@@ -109,6 +109,8 @@ describe('useref()', function() {
 });
 
 describe('useref.assets()', function() {
+    this.timeout(5000);
+    
     it('should concat CSS assets and pass them through', function(done) {
         var a = 0;
 
