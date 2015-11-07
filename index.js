@@ -180,6 +180,11 @@ module.exports.assets = function (opts) {
                     src
                         .pipe(gulpif(!opts.noconcat, concat(name)))
                         .pipe(through.obj(function (newFile, enc, callback) {
+                            // specify an output path relative to the cwd
+                            if (opts.base) {
+                                newFile.path = path.join(opts.base, name);
+                            }
+
                             // add file to the asset stream
                             self.push(newFile);
                             callback();

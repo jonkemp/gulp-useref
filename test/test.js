@@ -110,7 +110,7 @@ describe('useref()', function() {
 
 describe('useref.assets()', function() {
     this.timeout(5000);
-    
+
     it('should concat CSS assets and pass them through', function(done) {
         var a = 0;
 
@@ -579,6 +579,29 @@ describe('useref.assets()', function() {
         stream.write(testNonExistentFile);
         stream.end();
 
+    });
+
+    it('should output assets to a folder relative to the cwd', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('02.html');
+
+        var stream = useref.assets({ base: 'app' });
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            newFile.path.should.equal(path.normalize('./app/scripts/combined.js'));
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(1);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
     });
 
     require('./gulpfile');

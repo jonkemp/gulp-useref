@@ -158,6 +158,13 @@ Default: `none`
 
 Specify the location to search for asset files, relative to the current working directory. Can be a string or array of strings.
 
+#### options.base
+
+Type: `String`  
+Default: `process.cwd()`  
+
+Specify the output folder relative to the cwd.
+
 #### options.noconcat
 
 Type: `Boolean`  
