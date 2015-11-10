@@ -5,6 +5,11 @@
 Inspired by the grunt plugin [grunt-useref](https://github.com/pajtai/grunt-useref). It can handle file concatenation but not minification. Files are then passed down the stream. For minification of assets or other modifications, use [gulp-if](https://github.com/robrich/gulp-if) to conditionally handle specific types of assets.
 
 
+## What's new in 3.0?
+
+Changes under the hood have made the code more efficient and simplified the API. Since the API has changed, please observe the usage examples below.
+
+
 ## Install
 
 Install with [npm](https://npmjs.org/package/gulp-useref)
@@ -23,11 +28,7 @@ var gulp = require('gulp'),
     useref = require('gulp-useref');
 
 gulp.task('default', function () {
-    var assets = useref.assets();
-
     return gulp.src('app/*.html')
-        .pipe(assets)
-        .pipe(assets.restore())
         .pipe(useref())
         .pipe(gulp.dest('dist'));
 });
@@ -40,12 +41,8 @@ var gulp = require('gulp'),
     useref = require('gulp-useref');
 
 gulp.task('default', function () {
-    var assets = useref.assets({ searchPath: '.tmp' });
-
     return gulp.src('app/*.html')
-        .pipe(assets)
-        .pipe(assets.restore())
-        .pipe(useref())
+        .pipe(useref({ searchPath: '.tmp' }))
         .pipe(gulp.dest('dist'));
 });
 ```
@@ -60,14 +57,10 @@ var gulp = require('gulp'),
     minifyCss = require('gulp-minify-css');
 
 gulp.task('html', function () {
-    var assets = useref.assets();
-
     return gulp.src('app/*.html')
-        .pipe(assets)
+        .pipe(useref())
         .pipe(gulpif('*.js', uglify()))
         .pipe(gulpif('*.css', minifyCss()))
-        .pipe(assets.restore())
-        .pipe(useref())
         .pipe(gulp.dest('dist'));
 });
 ```
@@ -119,13 +112,9 @@ The resulting HTML would be:
 
 ## API
 
-### useref(options)
+### useref(options [, transformStream1 [, transformStream2 [, ... ]]])
 
-Returns a stream with the asset replaced resulting HTML files. Supports all options from [useref](https://github.com/digisfera/useref).
-
-### useref.assets(options [, transformStream1 [, transformStream2 [, ... ]]])
-
-Returns a stream with the concatenated asset files from the build blocks inside the HTML.
+Returns a stream with the asset replaced resulting HTML files as well as the concatenated asset files from the build blocks inside the HTML. Supports all options from [useref](https://github.com/digisfera/useref).
 
 ### Transform Streams
 
@@ -138,14 +127,11 @@ Transform assets before concat. For example, to integrate source maps:
 var gulp = require('gulp'),
     sourcemaps = require('gulp-sourcemaps'),
     useref = require('gulp-useref'),
-    lazypipe = require('lazypipe'),
-    assets = useref.assets({}, lazypipe().pipe(sourcemaps.init, { loadMaps: true }));
+    lazypipe = require('lazypipe');
 
   return gulp.src('index.html')
-    .pipe(assets)
+    .pipe(useref({}, lazypipe().pipe(sourcemaps.init, { loadMaps: true })))
     .pipe(sourcemaps.write('maps'))
-    .pipe(assets.restore())
-    .pipe(useref())
     .pipe(gulp.dest(dist));
 ```
 
@@ -164,6 +150,13 @@ Type: `String`
 Default: `process.cwd()`  
 
 Specify the output folder relative to the cwd.
+
+#### options.noAssets
+
+Type: `Boolean`  
+Default: `false`  
+
+Skip assets and only process the HTML files.
 
 #### options.noconcat
 
@@ -184,14 +177,9 @@ Use additional streams as sources of assets. Useful for combining gulp-useref wi
 var tsStream = gulp.src('src/**/*.ts')
         .pipe(ts());
 
-    // pass stream to assets, multiple streams are supported
-    var assets = useref.assets({ additionalStreams: [tsStream] });
-
     // use gulp-useref normally
     return gulp.src('src/index.html')
-        .pipe(assets)
-        .pipe(assets.restore())
-        .pipe(useref())
+        .pipe(useref({ additionalStreams: [tsStream] }))
         .pipe(gulp.dest('dist'));
 ```
 
@@ -207,33 +195,20 @@ var gulp = require('gulp'),
     useref = require('gulp-useref');
 
 gulp.task('default', function () {
-    var assets = useref.assets({
-        transformPath: function(filePath) {
-            return filePath.replace('/rootpath','')
-        }
-    });
-
     return gulp.src('app/*.html')
-        .pipe(assets)
-        .pipe(assets.restore())
-        .pipe(useref())
+        .pipe(useref({
+            transformPath: function(filePath) {
+                return filePath.replace('/rootpath','')
+            }
+        }))
         .pipe(gulp.dest('dist'));
 });
 ```
-
-### stream.restore()
-
-Brings back the previously filtered out HTML files.
 
 
 ## Notes
 
 * [ClosureCompiler.js](https://github.com/dcodeIO/ClosureCompiler.js) doesn't support Buffers, which means if you want to use [gulp-closure-compiler](https://github.com/sindresorhus/gulp-closure-compiler) you'll have to first write out the `combined.js` to disk. See [this](https://github.com/dcodeIO/ClosureCompiler.js/issues/11) for more information.
-
-
-## Acknowledgments
-
-* Whitney Young ([@wbyoung](https://github.com/wbyoung)) for suggesting a separate stream for assets.
 
 
 ## Contributing
