@@ -5,6 +5,6 @@ var gulp = require('gulp'),
 
 gulp.task('default', function () {
     return gulp.src('test/fixtures/bulk/useref.*.html')
-        .pipe(useref.assets())
+        .pipe(useref())
         .pipe(gulp.dest('dest', { cwd: 'test' }));
 });

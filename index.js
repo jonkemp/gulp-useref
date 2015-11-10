@@ -4,32 +4,6 @@ var gutil = require('gulp-util'),
     useref = require('node-useref');
 
 module.exports = function (opts) {
-    return through.obj(function (file, enc, cb) {
-        if (file.isNull()) {
-            cb(null, file);
-            return;
-        }
-
-        if (file.isStream()) {
-            cb(new gutil.PluginError('gulp-useref', 'Streaming not supported'));
-            return;
-        }
-
-        var output = useref(file.contents.toString(), opts);
-        var html = output[0];
-
-        try {
-            file.contents = new Buffer(html);
-            this.push(file);
-        } catch (err) {
-            this.emit('error', new gutil.PluginError('gulp-useref', err));
-        }
-
-        cb();
-    });
-};
-
-module.exports.assets = function (opts) {
     opts = opts || {};
 
     var path = require('path'),
@@ -41,7 +15,6 @@ module.exports.assets = function (opts) {
         isRelativeUrl = require('is-relative-url'),
         vfs = require('vinyl-fs'),
         transforms = Array.prototype.slice.call(arguments, 1),
-        restoreStream = through.obj(),
         unprocessed = 0,
         end = false,
         additionalFiles = [],
@@ -71,12 +44,44 @@ module.exports.assets = function (opts) {
         waitForAssets.emit('finish');
     }
 
-    var assetStream = through.obj(function (file, enc, cb) {
+    return through.obj(function (file, enc, cb) {
         var self = this;
 
         waitForAssets.pipe(es.wait(function () {
-            var output = useref(file.contents.toString());
-            var assets = output[1];
+            var output,
+                html,
+                assets,
+
+                // Cache the file base path relative to the cwd
+                // Use later when it could be dropped
+                _basePath = file.base;
+
+            if (file.isNull()) {
+                cb(null, file);
+                return;
+            }
+
+            if (file.isStream()) {
+                cb(new gutil.PluginError('gulp-useref', 'Streaming not supported'));
+                return;
+            }
+
+            output = useref(file.contents.toString(), opts);
+            html = output[0];
+
+            try {
+                file.contents = new Buffer(html);
+                self.push(file);
+            } catch (err) {
+                self.emit('error', new gutil.PluginError('gulp-useref', err));
+            }
+
+            if (opts.noAssets) {
+                cb();
+                return;
+            }
+
+            assets = output[1];
 
             types.forEach(function (type) {
                 var files = assets[type];
@@ -108,7 +113,7 @@ module.exports.assets = function (opts) {
                     globs = filepaths
                         .filter(isRelativeUrl)
                         .map(function (filepath) {
-                            var pattern = path.join((searchPaths || file.base), filepath),
+                            var pattern = path.join((searchPaths || _basePath), filepath),
                                 matches = glob.sync(pattern, { nosort: true });
 
                             if (!matches.length) {
@@ -122,7 +127,7 @@ module.exports.assets = function (opts) {
                         });
 
                     src = vfs.src(globs, {
-                        base: file.base,
+                        base: _basePath,
                         nosort: true
                     });
 
@@ -199,8 +204,6 @@ module.exports.assets = function (opts) {
                 });
             });
 
-            restoreStream.write(file);
-
             cb();
         }));
     }, function () {
@@ -209,10 +212,4 @@ module.exports.assets = function (opts) {
             this.emit('end');
         }
     });
-
-    assetStream.restore = function () {
-        return restoreStream.pipe(through.obj(), { end: false });
-    };
-
-    return assetStream;
 };
