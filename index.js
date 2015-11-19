@@ -113,7 +113,7 @@ module.exports = function (opts) {
                     globs = filepaths
                         .filter(isRelativeUrl)
                         .map(function (filepath) {
-                            var pattern = path.join((searchPaths || _basePath), filepath),
+                            var pattern = (searchPaths || _basePath) + path.sep + filepath,
                                 matches = glob.sync(pattern, { nosort: true });
 
                             if (!matches.length) {

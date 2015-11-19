@@ -266,6 +266,31 @@ describe('useref.assets()', function() {
         stream.end();
     });
 
+    it('should handle an alternate js search path with file separator', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('12.html');
+
+        var stream = useref();
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            if (a === 1) {
+                newFile.path.should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
+            }
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(2);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
     it('should get the alternate search path from options via string', function(done) {
         var a = 0;
 
