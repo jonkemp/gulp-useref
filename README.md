@@ -129,10 +129,12 @@ var gulp = require('gulp'),
     useref = require('gulp-useref'),
     lazypipe = require('lazypipe');
 
-  return gulp.src('index.html')
-    .pipe(useref({}, lazypipe().pipe(sourcemaps.init, { loadMaps: true })))
-    .pipe(sourcemaps.write('maps'))
-    .pipe(gulp.dest(dist));
+gulp.task('default', function () {
+    return gulp.src('index.html')
+        .pipe(useref({}, lazypipe().pipe(sourcemaps.init, { loadMaps: true })()))
+        .pipe(sourcemaps.write('maps'))
+        .pipe(gulp.dest('dist'));
+});
 ```
 
 ### Options
@@ -173,14 +175,18 @@ Default: `none`
 Use additional streams as sources of assets. Useful for combining gulp-useref with preprocessing tools. For example, to use with TypeScript:
 
 ```javascript
+var ts = require('gulp-typescript');
+
 // create stream of virtual files
 var tsStream = gulp.src('src/**/*.ts')
         .pipe(ts());
 
+gulp.task('default', function () {
     // use gulp-useref normally
     return gulp.src('src/index.html')
         .pipe(useref({ additionalStreams: [tsStream] }))
         .pipe(gulp.dest('dist'));
+});
 ```
 
 #### options.transformPath
