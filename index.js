@@ -1,7 +1,7 @@
 'use strict';
 var gutil = require('gulp-util'),
     through = require('through2'),
-    useref = require('node-useref');
+    useref = require('useref');
 
 module.exports = function (opts) {
     opts = opts || {};
