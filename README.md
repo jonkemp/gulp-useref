@@ -1,5 +1,7 @@
 # [gulp](https://github.com/gulpjs/gulp)-useref [![Build Status](https://travis-ci.org/jonkemp/gulp-useref.svg?branch=master)](https://travis-ci.org/jonkemp/gulp-useref)
 
+[![NPM](https://nodei.co/npm/gulp-useref.png?downloads=true)](https://nodei.co/npm/gulp-useref/)
+
 > Parse build blocks in HTML files to replace references to non-optimized scripts or stylesheets with [useref](https://github.com/jonkemp/useref)
 
 Inspired by the grunt plugin [grunt-useref](https://github.com/pajtai/grunt-useref). It can handle file concatenation but not minification. Files are then passed down the stream. For minification of assets or other modifications, use [gulp-if](https://github.com/robrich/gulp-if) to conditionally handle specific types of assets.
