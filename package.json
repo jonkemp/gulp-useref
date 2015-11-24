@@ -18,6 +18,7 @@
     "vinyl-fs": "^2.2.1"
   },
   "devDependencies": {
+    "coveralls": "^2.11.4",
     "gulp": "^3.9.0",
     "gulp-jscs": "^3.0.1",
     "gulp-jshint": "^1.9.0",
@@ -25,13 +26,16 @@
     "gulp-rename": "^1.2.2",
     "mocha": "*",
     "mock-gulp-dest": "^0.1.1",
+    "nyc": "^3.2.2",
     "should": "*"
   },
   "engines": {
     "node": ">=0.10.0"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "coverage": "nyc npm test && nyc report",
+    "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
   },
   "repository": {
     "type": "git",
