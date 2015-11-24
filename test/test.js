@@ -146,7 +146,10 @@ describe('useref.assets()', function() {
 
         stream.on('data', function(newFile){
             should.exist(newFile.contents);
-            if (a === 1) {
+
+            if (a === 0) {
+                getExpected('noconcat-css.html').contents.toString().should.equal(newFile.contents.toString());
+            } else if (a === 1) {
                 newFile.path.should.equal(path.join(__dirname, './fixtures/css/one.css'));
             } else if (a === 2) {
                 newFile.path.should.equal(path.join(__dirname, './fixtures/css/two.css'));
@@ -198,7 +201,10 @@ describe('useref.assets()', function() {
 
         stream.on('data', function(newFile){
             should.exist(newFile.contents);
-            if (a === 1) {
+
+            if (a === 0) {
+                getExpected('noconcat-js.html').contents.toString().should.equal(newFile.contents.toString());
+            } else if (a === 1) {
                 newFile.path.should.equal(path.join(__dirname, './fixtures/scripts/this.js'));
             } else if (a === 2) {
                 newFile.path.should.equal(path.join(__dirname, './fixtures/scripts/that.js'));
