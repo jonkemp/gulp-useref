@@ -1,4 +1,4 @@
-# [gulp](https://github.com/gulpjs/gulp)-useref [![Build Status](https://travis-ci.org/jonkemp/gulp-useref.svg?branch=master)](https://travis-ci.org/jonkemp/gulp-useref)
+# [gulp](https://github.com/gulpjs/gulp)-useref [![Build Status](https://travis-ci.org/jonkemp/gulp-useref.svg?branch=master)](https://travis-ci.org/jonkemp/gulp-useref) [![Coverage Status](https://coveralls.io/repos/jonkemp/gulp-useref/badge.svg?branch=master&service=github)](https://coveralls.io/github/jonkemp/gulp-useref?branch=master)
 
 [![NPM](https://nodei.co/npm/gulp-useref.png?downloads=true)](https://nodei.co/npm/gulp-useref/)
 
