@@ -37,10 +37,10 @@
     "coverage": "nyc npm test && nyc report",
     "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
   },
-  "repository": {
-    "type": "git",
-    "url": "git://github.com/jonkemp/gulp-useref.git"
-  },
+  "files": [
+    "index.js"
+  ],
+  "repository": "jonkemp/gulp-useref",
   "keywords": [
     "gulpplugin",
     "html",
@@ -50,9 +50,5 @@
     "concat"
   ],
   "author": "Jonathan Kemp <kempdogg@gmail.com> (http://jonkemp.com/)",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/jonkemp/gulp-useref/issues"
-  },
-  "homepage": "https://github.com/jonkemp/gulp-useref"
+  "license": "MIT"
 }
