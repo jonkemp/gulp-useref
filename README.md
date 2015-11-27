@@ -11,6 +11,15 @@ Inspired by the grunt plugin [grunt-useref](https://github.com/pajtai/grunt-user
 
 Changes under the hood have made the code more efficient and simplified the API. Since the API has changed, please observe the usage examples below.
 
+If you get errors like
+
+    TypeError: useref.assets is not a function
+
+or
+
+    TypeError: $.useref.assets is not a function
+
+please read the Migration Notes below.
 
 ## Install
 
@@ -212,6 +221,53 @@ gulp.task('default', function () {
         .pipe(gulp.dest('dist'));
 });
 ```
+
+## Migration from v2 API
+
+If you upgrade gulp-useref from v2 without changing your gulpfile,
+you will get errors like this:
+
+    TypeError: $.useref.assets is not a function
+
+or
+
+    TypeError: useref.assets is not a function
+
+For a simple configuration, you can replace this V2 code:
+
+    var gulp = require('gulp'),
+        useref = require('gulp-useref');
+
+    gulp.task('default', function () {
+      var assets = useref.assets();
+
+      return gulp.src('app/*.html')
+        .pipe(assets)
+        .pipe(assets.restore())
+        .pipe(useref())
+        .pipe(gulp.dest('dist'));
+    });
+
+with this V3 code:
+
+    var gulp = require('gulp'),
+      useref = require('gulp-useref');
+
+    gulp.task('default', function () {
+      return gulp.src('app/*.html')
+        .pipe(useref())
+        .pipe(gulp.dest('dist'));
+    });
+
+If you were previously using useref in a multi-stage pipe,
+you may need to rewrite the pipe, since the simplified V3 API
+may not allow for its previous usage.
+
+If the gulpfile you are using came from a generator, (for example,
+in JohnPapa's excellent "opinionated" HotTowel generator), it may
+be more practical to go back to that generator project to see
+whether they have upgraded to the V3 gulp-useref API, rather than
+trying to understand their pipe.
 
 
 ## Notes
