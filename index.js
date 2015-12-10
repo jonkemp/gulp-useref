@@ -3,14 +3,13 @@ var gutil = require('gulp-util'),
     through = require('through2'),
     useref = require('useref');
 
-module.exports = function (opts) {
-    opts = opts || {};
-
-    var path = require('path'),
+module.exports = function (options) {
+    var opts = options || {},
+        path = require('path'),
         concat = require('gulp-concat'),
         gulpif = require('gulp-if'),
         es = require('event-stream'),
-        types = opts.types || ['css', 'js'],
+        types = opts.types || [ 'css', 'js' ],
         glob = require('glob'),
         isRelativeUrl = require('is-relative-url'),
         vfs = require('vinyl-fs'),
@@ -23,7 +22,7 @@ module.exports = function (opts) {
     // If any external streams were included, add matched files to src
     if (opts.additionalStreams) {
         if (!Array.isArray(opts.additionalStreams)) {
-            opts.additionalStreams = [opts.additionalStreams];
+            opts.additionalStreams = [ opts.additionalStreams ];
         }
 
         opts.additionalStreams = opts.additionalStreams.map(function (stream) {
@@ -94,7 +93,11 @@ module.exports = function (opts) {
                     var src,
                         globs,
                         searchPaths,
-                        filepaths = files[name].assets;
+                        filepaths = files[name].assets,
+                        sortIndex = {},
+                        i = 0,
+                        sortedFiles = [],
+                        unsortedFiles = [];
 
                     if (!filepaths.length) {
                         return;
@@ -136,42 +139,37 @@ module.exports = function (opts) {
                     });
 
                     // add files from external streams
-                    additionalFiles.forEach(function (file) {
-                        src.push(file);
+                    additionalFiles.forEach(function (addFile) {
+                        src.push(addFile);
                     });
 
                     // if we added additional files, reorder the stream
                     if (additionalFiles.length > 0) {
-                        var sortIndex = {},
-                            i = 0,
-                            sortedFiles = [],
-                            unsortedFiles = [];
-
                         // Create a sort index so we don't iterate over the globs for every file
                         globs.forEach(function (filename) {
                             sortIndex[filename] = i++;
                         });
 
-                        src = src.pipe(through.obj(function (file, enc, cb) {
-                            var index = sortIndex[file.path];
+                        src = src.pipe(through.obj(function (srcFile, encoding, callback) {
+                            var index = sortIndex[srcFile.path];
 
                             if (index === undefined) {
-                                unsortedFiles.push(file);
+                                unsortedFiles.push(srcFile);
                             } else {
-                                sortedFiles[index] = file;
+                                sortedFiles[index] = srcFile;
                             }
-                            cb();
-                        }, function (cb) {
-                            sortedFiles.forEach(function (file) {
-                                if (file !== undefined) {
-                                    this.push(file);
+                            callback();
+                        }, function (callback) {
+                            sortedFiles.forEach(function (sorted) {
+                                if (sorted !== undefined) {
+                                    this.push(sorted);
                                 }
                             }, this);
 
-                            unsortedFiles.forEach(function (file) {
-                                this.push(file);
+                            unsortedFiles.forEach(function (unsorted) {
+                                this.push(unsorted);
                             }, this);
-                            cb();
+                            callback();
                         }));
                     }
 
@@ -184,7 +182,7 @@ module.exports = function (opts) {
                     // If noconcat option is false, concat the files first.
                     src
                         .pipe(gulpif(!opts.noconcat, concat(name)))
-                        .pipe(through.obj(function (newFile, enc, callback) {
+                        .pipe(through.obj(function (newFile, encoding, callback) {
                             // specify an output path relative to the cwd
                             if (opts.base) {
                                 newFile.path = path.join(opts.base, name);
