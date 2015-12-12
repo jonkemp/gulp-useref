@@ -19,7 +19,6 @@
   },
   "devDependencies": {
     "coveralls": "^2.11.4",
-    "event-stream": "^3.3.2",
     "gulp": "^3.9.0",
     "gulp-eslint": "^1.1.1",
     "gulp-mocha": "^2.0.0",
