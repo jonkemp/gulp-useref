@@ -5,6 +5,7 @@ var should = require('should');
 var fs = require('fs');
 var path = require('path');
 var gutil = require('gulp-util');
+var es = require('event-stream');
 var useref = require('../index');
 var gulp = require('gulp');
 var rename = require('gulp-rename');
@@ -71,6 +72,36 @@ describe('useref()', function() {
 
         stream.write(fakeFile);
         stream.end();
+    });
+
+    it('should let null files pass through', function(done) {
+        var stream = useref({ noAssets: true }),
+            n = 0;
+
+        stream.pipe(es.through(function(file) {
+            should.equal(file.path, 'null.md');
+            should.equal(file.contents,  null);
+            n++;
+        }, function() {
+            should.equal(n, 1);
+            done();
+        }));
+
+        stream.write(new gutil.File({
+            path: 'null.md',
+            contents: null
+         }));
+
+        stream.end();
+    });
+
+    it('should emit error on streamed file', function (done) {
+        gulp.src(path.join('test', 'fixtures', '01.html'), { buffer: false })
+            .pipe(useref({ noAssets: true }))
+            .on('error', function (err) {
+                err.message.should.equal('Streaming not supported');
+                done();
+            });
     });
 
     it('should replace reference in css block and return replaced files', function(done) {
