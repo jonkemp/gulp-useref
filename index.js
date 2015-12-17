@@ -53,7 +53,7 @@ module.exports = function (options) {
 
                 // Cache the file base path relative to the cwd
                 // Use later when it could be dropped
-                _basePath = file.base;
+                _basePath = path.dirname(file.path);
 
             if (file.isNull()) {
                 cb(null, file);
