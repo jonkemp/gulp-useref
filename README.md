@@ -79,7 +79,7 @@ gulp.task('html', function () {
 Blocks are expressed as:
 
 ```html
-<!-- build:<type>(alternate search path) <path> -->
+<!-- build:<type>(alternate search path) <path> <parameters> -->
 ... HTML Markup, list of script / link tags.
 <!-- endbuild -->
 ```
@@ -87,6 +87,7 @@ Blocks are expressed as:
 - **type**: either `js`, `css` or `remove`; `remove` will remove the build block entirely without generating a file
 - **alternate search path**: (optional) By default the input files are relative to the treated file. Alternate search path allows one to change that
 - **path**: the file path of the optimized file, the target output
+- **parameters**: extra parameters that should be added to the tag
 
 An example of this in completed form can be seen below:
 
@@ -120,12 +121,13 @@ The resulting HTML would be:
 </html>
 ```
 
+See [useref](https://github.com/jonkemp/useref) for more information.
 
 ## API
 
 ### useref(options [, transformStream1 [, transformStream2 [, ... ]]])
 
-Returns a stream with the asset replaced resulting HTML files as well as the concatenated asset files from the build blocks inside the HTML. Supports all options from [useref](https://github.com/digisfera/useref).
+Returns a stream with the asset replaced resulting HTML files as well as the concatenated asset files from the build blocks inside the HTML. Supports all options from [useref](https://github.com/jonkemp/useref).
 
 ### Transform Streams
 
