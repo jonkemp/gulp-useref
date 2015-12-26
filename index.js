@@ -10,14 +10,18 @@ module.exports = function (options) {
         gulpif = require('gulp-if'),
         es = require('event-stream'),
         types = opts.types || [ 'css', 'js' ],
-        glob = require('glob'),
         isRelativeUrl = require('is-relative-url'),
         vfs = require('vinyl-fs'),
         transforms = Array.prototype.slice.call(arguments, 1),
         unprocessed = 0,
         end = false,
         additionalFiles = [],
-        waitForAssets;
+        waitForAssets,
+        searchPath = opts.searchPath;
+
+    if (searchPath && Array.isArray(searchPath)) {
+        searchPath = '{' + searchPath.join(',') + '}';
+    }
 
     // If any external streams were included, add matched files to src
     if (opts.additionalStreams) {
@@ -92,7 +96,6 @@ module.exports = function (options) {
                 Object.keys(files).forEach(function (name) {
                     var src,
                         globs,
-                        searchPaths,
                         filepaths = files[name].assets,
                         sortIndex = {},
                         i = 0,
@@ -105,23 +108,27 @@ module.exports = function (options) {
 
                     unprocessed++;
 
-                    if (files[name].searchPaths || opts.searchPath) {
-                        if (opts.searchPath && Array.isArray(opts.searchPath)) {
-                            opts.searchPath = '{' + opts.searchPath.join(',') + '}';
-                        }
-                        searchPaths = path.resolve(file.cwd, files[name].searchPaths || opts.searchPath);
-                    }
-
                     // Get relative file paths and join with search paths to send to vinyl-fs
                     globs = filepaths
                         .filter(isRelativeUrl)
                         .map(function (filepath) {
-                            var pattern = (searchPaths || _basePath) + path.sep + filepath,
-                                matches = glob.sync(pattern, { nosort: true });
+                            var searchPaths,
+                                pattern,
+                                matches,
+                                glob = require('glob');
+
+                            if (files[name].searchPaths || searchPath) {
+                                searchPaths = path.resolve(file.cwd, files[name].searchPaths || searchPath);
+                            }
+
+                            pattern = (searchPaths || _basePath) + path.sep + filepath;
+
+                            matches = glob.sync(pattern, { nosort: true });
 
                             if (!matches.length) {
                                 matches.push(pattern);
                             }
+
                             if (opts.transformPath) {
                                 matches[0] = opts.transformPath(matches[0]);
                             }
