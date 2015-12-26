@@ -9,7 +9,7 @@
     "block-scoped-var": 2,
     "complexity": [
       1,
-      4
+      5
     ],
     "consistent-return": 2,
     "curly": [
