@@ -645,20 +645,6 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should emit an error if one of the assets is not found', function(done) {
-        var testNonExistentFile = getFixture('nonexistent.html');
-        var stream = useref();
-
-        stream.on('error', function(err) {
-            err.should.match(/File not found with singular glob/);
-            done();
-        });
-
-        stream.write(testNonExistentFile);
-        stream.end();
-
-    });
-
     it('should output assets to a folder relative to the cwd', function(done) {
         var a = 0;
 
@@ -748,5 +734,21 @@ describe('useref()', function() {
                 fileCount.should.equal(5);
                 done();
             }));
+    });
+});
+
+describe('on error', function () {
+    it('should emit an error if one of the assets is not found', function (done) {
+        var testNonExistentFile = getFixture('nonexistent.html');
+        var stream = useref();
+
+        stream.on('error', function (err) {
+            err.should.match(/File not found with singular glob/);
+            done();
+        });
+
+        stream.write(testNonExistentFile);
+        stream.end();
+
     });
 });
