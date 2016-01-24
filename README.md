@@ -236,31 +236,35 @@ or
     TypeError: useref.assets is not a function
 
 For a simple configuration, you can replace this V2 code:
+
 ```js
-    var gulp = require('gulp'),
-        useref = require('gulp-useref');
+var gulp = require('gulp'),
+    useref = require('gulp-useref');
 
-    gulp.task('default', function () {
-      var assets = useref.assets();
+gulp.task('default', function () {
+    var assets = useref.assets();
 
-      return gulp.src('app/*.html')
+    return gulp.src('app/*.html')
         .pipe(assets)
         .pipe(assets.restore())
         .pipe(useref())
         .pipe(gulp.dest('dist'));
-    });
+});
 ```
-with this V3 code:
-```js
-    var gulp = require('gulp'),
-      useref = require('gulp-useref');
 
-    gulp.task('default', function () {
-      return gulp.src('app/*.html')
+with this V3 code:
+
+```js
+var gulp = require('gulp'),
+    useref = require('gulp-useref');
+
+gulp.task('default', function () {
+    return gulp.src('app/*.html')
         .pipe(useref())
         .pipe(gulp.dest('dist'));
-    });
+});
 ```
+
 If you were previously using useref in a multi-stage pipe,
 you may need to rewrite the pipe, since the simplified V3 API
 may not allow for its previous usage.
