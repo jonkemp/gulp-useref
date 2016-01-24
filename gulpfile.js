@@ -6,7 +6,7 @@ var gulp = require('gulp'),
     eslint = require('gulp-eslint');
 
 var paths = {
-    scripts: ['./*.js', '!./gulpfile.js']
+    scripts: ['./*.js', './lib/*.js', '!./gulpfile.js']
 };
 
 gulp.task('lint', function () {

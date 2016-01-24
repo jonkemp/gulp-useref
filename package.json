@@ -38,7 +38,8 @@
     "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls"
   },
   "files": [
-    "index.js"
+    "index.js",
+    "lib"
   ],
   "repository": "jonkemp/gulp-useref",
   "keywords": [
