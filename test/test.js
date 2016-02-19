@@ -324,7 +324,7 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should get the alternate search path from options via string', function(done) {
+    /*it('should get the alternate search path from options via string', function(done) {
         var a = 0;
 
         var testFile = getFixture('07.html');
@@ -354,9 +354,41 @@ describe('useref()', function() {
         stream.write(testFile);
 
         stream.end();
-    });
+    });*/
 
     it('should get the alternate search path from options via array', function(done) {
+        var a = 0;
+
+        var testFile = getFixture('07.html');
+
+        var stream = useref({
+            searchPath: ['.tmp']
+        });
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            switch (newFile.path) {
+                case path.normalize('./test/fixtures/scripts/main.js'):
+                    newFile.path.should.equal(path.normalize('./test/fixtures/scripts/main.js'));
+                    break;
+                case path.normalize('./test/fixtures/css/combined.css'):
+                    newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+                    break;
+            }
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(3);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
+    it('should get the alternate search paths from options via array', function(done) {
         var a = 0;
 
         var testFile = getFixture('alternate-search-paths.html');
