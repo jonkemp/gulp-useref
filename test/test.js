@@ -9,6 +9,7 @@ var es = require('event-stream');
 var useref = require('../index');
 var gulp = require('gulp');
 var rename = require('gulp-rename');
+var through = require('through2');
 
 function getFile(filePath) {
     return new gutil.File({
@@ -695,8 +696,11 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should support external streams', function(done) {
+    it.only('should support external streams', function(done) {
         var extStream1 = gulp.src('test/fixtures/scripts/that.js')
+            .pipe(through.obj(function (newFile, enc, callback) {
+                setTimeout(callback, 75);
+            }))
             .pipe(rename('renamedthat.js'));
 
         var extStream2 = gulp.src('test/fixtures/scripts/yetonemore.js')
@@ -704,7 +708,6 @@ describe('useref()', function() {
 
         var fileCount = 0;
 
-        var through = require('through2');
         var assets = useref({
             noconcat: true,
             additionalStreams: [extStream1, extStream2]
@@ -717,16 +720,16 @@ describe('useref()', function() {
 
                 switch (fileCount++) { // Order should be maintained
                     case 1:
-                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/this.js'));
+                        path.join(newFile.path).should.equal(path.join(__dirname, 'fixtures/scripts/this.js'));
                         break;
                     case 2:
-                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/anotherone.js'));
+                        path.join(newFile.path).should.equal(path.join(__dirname, 'fixtures/scripts/anotherone.js'));
                         break;
                     case 3:
-                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/renamedthat.js'));
+                        path.join(newFile.path).should.equal(path.join(__dirname, 'fixtures/scripts/renamedthat.js'));
                         break;
                     case 4:
-                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/renamedyet.js'));
+                        path.join(newFile.path).should.equal(path.join(__dirname, 'fixtures/scripts/renamedyet.js'));
                         break;
                 }
                 callback();
