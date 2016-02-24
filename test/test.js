@@ -325,7 +325,7 @@ describe('useref()', function() {
         stream.end();
     });
 
-    /*it('should get the alternate search path from options via string', function(done) {
+    it('should get the alternate search path from options via string', function(done) {
         var a = 0;
 
         var testFile = getFixture('07.html');
@@ -355,7 +355,7 @@ describe('useref()', function() {
         stream.write(testFile);
 
         stream.end();
-    });*/
+    });
 
     it('should get the alternate search path from options via array', function(done) {
         var a = 0;
@@ -581,21 +581,6 @@ describe('useref()', function() {
 
         stream.write(getFixture('custom-blocks.html'));
         stream.end();
-    });
-
-    it('should not end the stream prematurely', function (done) {
-        var fileCount = 0;
-
-        gulp.src('test/fixtures/04.html')
-            .pipe(useref())
-            .pipe(through.obj({ highWaterMark: 1 }, function (newFile, enc, callback) {
-                fileCount++;
-                setTimeout(callback, 750);
-            }, function (cb) {
-                fileCount.should.equal(5);
-                done();
-                cb();
-            }));
     });
 
     it('should work with relative paths', function(done) {

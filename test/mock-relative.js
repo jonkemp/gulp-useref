@@ -5,7 +5,7 @@
 var should = require('should');
 var path = require('path');
 
-describe('useref()', function () {
+describe('relative files', function () {
     this.timeout(5000);
 
     it('should handle relative files', function (done) {

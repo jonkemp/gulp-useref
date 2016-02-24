@@ -4,8 +4,11 @@
 'use strict';
 var should = require('should');
 var path = require('path');
+var gulp = require('gulp');
+var useref = require('../index');
+var through = require('through2');
 
-describe('useref', function () {
+describe('bulk files', function () {
     this.timeout(5000);
 
     it('should handle all files', function (done) {
@@ -219,5 +222,20 @@ describe('useref', function () {
 
                 done();
             });
+    });
+
+    it('should not end the stream prematurely', function (done) {
+        var fileCount = 0;
+
+        gulp.src('test/fixtures/04.html')
+            .pipe(useref())
+            .pipe(through.obj({ highWaterMark: 1 }, function (newFile, enc, callback) {
+                fileCount++;
+                setTimeout(callback, 750);
+            }, function (cb) {
+                fileCount.should.equal(5);
+                done();
+                cb();
+            }));
     });
 });
