@@ -9,6 +9,7 @@ var es = require('event-stream');
 var useref = require('../index');
 var gulp = require('gulp');
 var rename = require('gulp-rename');
+var through = require('through2');
 
 function getFile(filePath) {
     return new gutil.File({
@@ -177,9 +178,9 @@ describe('useref()', function() {
             if (a === 0) {
                 getExpected('noconcat-css.html').contents.toString().should.equal(newFile.contents.toString());
             } else if (a === 1) {
-                newFile.path.should.equal(path.join(__dirname, './fixtures/css/one.css'));
+                path.normalize(newFile.path).should.equal(path.join(__dirname, './fixtures/css/one.css'));
             } else if (a === 2) {
-                newFile.path.should.equal(path.join(__dirname, './fixtures/css/two.css'));
+                path.normalize(newFile.path).should.equal(path.join(__dirname, './fixtures/css/two.css'));
             }
             ++a;
         });
@@ -232,9 +233,9 @@ describe('useref()', function() {
             if (a === 0) {
                 getExpected('noconcat-js.html').contents.toString().should.equal(newFile.contents.toString());
             } else if (a === 1) {
-                newFile.path.should.equal(path.join(__dirname, './fixtures/scripts/this.js'));
+                path.normalize(newFile.path).should.equal(path.join(__dirname, './fixtures/scripts/this.js'));
             } else if (a === 2) {
-                newFile.path.should.equal(path.join(__dirname, './fixtures/scripts/that.js'));
+                path.normalize(newFile.path).should.equal(path.join(__dirname, './fixtures/scripts/that.js'));
             }
             ++a;
         });
@@ -576,8 +577,25 @@ describe('useref()', function() {
             done();
         });
 
+        stream.resume();
+
         stream.write(getFixture('custom-blocks.html'));
         stream.end();
+    });
+
+    it('should not end the stream prematurely', function (done) {
+        var fileCount = 0;
+
+        gulp.src('test/fixtures/04.html')
+            .pipe(useref())
+            .pipe(through.obj({ highWaterMark: 1 }, function (newFile, enc, callback) {
+                fileCount++;
+                setTimeout(callback, 750);
+            }, function (cb) {
+                fileCount.should.equal(5);
+                done();
+                cb();
+            }));
     });
 
     it('should work with relative paths', function(done) {
@@ -590,7 +608,7 @@ describe('useref()', function() {
         stream.on('data', function(newFile){
             should.exist(newFile.contents);
             if (a === 1) {
-                newFile.path.should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
+                path.normalize(newFile.path).should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
             }
             ++a;
         });
@@ -615,7 +633,7 @@ describe('useref()', function() {
         stream.on('data', function(newFile){
             should.exist(newFile.contents);
             if (a === 1) {
-                newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+                path.normalize(newFile.path).should.equal(path.normalize('./test/fixtures/css/combined.css'));
             }
             ++a;
         });
@@ -644,7 +662,7 @@ describe('useref()', function() {
         stream.on('data', function(newFile){
             should.exist(newFile.contents);
             if (a === 1) {
-                newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+                path.normalize(newFile.path).should.equal(path.normalize('./test/fixtures/css/combined.css'));
             }
             ++a;
         });
@@ -687,7 +705,7 @@ describe('useref()', function() {
         stream.on('data', function(newFile){
             should.exist(newFile.contents);
             if (a === 1) {
-                newFile.path.should.equal(path.normalize('./app/scripts/combined.js'));
+                path.normalize(newFile.path).should.equal(path.normalize('./app/scripts/combined.js'));
             }
             ++a;
         });
@@ -712,7 +730,7 @@ describe('useref()', function() {
         stream.on('data', function(newFile){
             should.exist(newFile.contents);
             if (a === 1) {
-                newFile.path.should.equal(path.normalize('./test/fixtures/relative/styles/bundle.css'));
+                path.normalize(newFile.path).should.equal(path.normalize('./test/fixtures/relative/styles/bundle.css'));
             }
             ++a;
         });
@@ -736,7 +754,6 @@ describe('useref()', function() {
 
         var fileCount = 0;
 
-        var through = require('through2');
         var assets = useref({
             noconcat: true,
             additionalStreams: [extStream1, extStream2]
@@ -749,16 +766,16 @@ describe('useref()', function() {
 
                 switch (fileCount++) { // Order should be maintained
                     case 1:
-                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/this.js'));
+                        path.normalize(newFile.path).should.equal(path.join(__dirname, 'fixtures/scripts/this.js'));
                         break;
                     case 2:
-                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/anotherone.js'));
+                        path.normalize(newFile.path).should.equal(path.join(__dirname, 'fixtures/scripts/anotherone.js'));
                         break;
                     case 3:
-                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/renamedthat.js'));
+                        path.normalize(newFile.path).should.equal(path.join(__dirname, 'fixtures/scripts/renamedthat.js'));
                         break;
                     case 4:
-                        newFile.path.should.equal(path.join(__dirname, 'fixtures/scripts/renamedyet.js'));
+                        path.normalize(newFile.path).should.equal(path.join(__dirname, 'fixtures/scripts/renamedyet.js'));
                         break;
                 }
                 callback();
