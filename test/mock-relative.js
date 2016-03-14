@@ -31,4 +31,31 @@ describe('relative files', function () {
                 done();
             });
     });
+
+    it('should handle relative files when base is set', function (done) {
+        var gulp = require('gulp');
+        var mockGulpDest = require('mock-gulp-dest')(gulp);
+
+        var useref = require('../index');
+
+        gulp.task('relativeBase', function () {
+            return gulp.src(['test/fixtures/templates1/**/*.html', 'test/fixtures/templates2/**/*.html'])
+                .pipe(useref({
+                    searchPath: 'test/fixtures',
+                    base: 'test/fixtures'
+                }))
+                .pipe(gulp.dest('test/dist'));
+        });
+
+        gulp.start('relativeBase')
+            .once('stop', function () {
+                mockGulpDest.basePath().should.equal(path.join(__dirname, 'dist'));
+                mockGulpDest.assertDestContains([
+                    'css/bundle.css',
+                    'css/combined.css'
+                ]);
+
+                done();
+            });
+    });
 });

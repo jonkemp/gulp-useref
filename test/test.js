@@ -730,6 +730,35 @@ describe('useref()', function() {
         stream.end();
     });
 
+    it('should set file.base when asked', function(done) {
+        var a = 0;
+
+        var testFile = getFixture(path.join('templates1', 'component.html'));
+
+        var stream = useref({
+            searchPath: 'fixtures',
+            base: 'fixtures'
+        });
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            if (a === 1) {
+                path.normalize(newFile.path).should.equal(path.normalize('./fixtures/css/bundle.css'));
+                path.normalize(newFile.relative).should.equal(path.normalize('css/bundle.css'))
+            }
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(2);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
     it('should support external streams', function(done) {
         var extStream1 = gulp.src('test/fixtures/scripts/that.js')
             .pipe(rename('renamedthat.js'));
