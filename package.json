@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "event-stream": "^3.3.1",
-    "glob": "^6.0.1",
+    "glob": "^7.0.3",
     "gulp-concat": "^2.5.2",
     "gulp-if": "^2.0.0",
     "gulp-util": "^3.0.1",
