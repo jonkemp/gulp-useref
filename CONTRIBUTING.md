@@ -1,5 +1,8 @@
 # Contributing to gulp-useref
 
+First, thanks for your initiative to help out! One of the reasons that open
+source is so great is because of the eagerness of others to help.
+
 Please take a moment to review this document in order to make the contribution
 process easy and effective for everyone involved.
 
@@ -7,6 +10,17 @@ Following these guidelines helps to communicate that you respect the time of
 the developers managing and developing this open source project. In return,
 they should reciprocate that respect in addressing your issue or assessing
 patches and features.
+
+
+## Asking a Question
+
+Before you ask, do some searching and reading. Check the docs, Google, GitHub,
+and StackOverflow. If your question is something that has been answered many
+times before, the project maintainers might be tired of repeating themselves.
+
+Whenever possible, ask your question on a public forum. This allows anyone to
+answer and makes the answer available for the next person with the same question.
+If all else fails, you might tweet at or email the maintainer(s).
 
 
 ## Using the issue tracker
@@ -26,6 +40,32 @@ requests](#pull-requests), but please respect the following restrictions:
 
 A bug is a _demonstrable problem_ that is caused by the code in the repository.
 Good bug reports are extremely helpful - thank you!
+
+### Has This Been Asked Before?
+
+Before you submit a bug report, you should search existing issues. Be sure to
+check both currently open issues, as well as issues that are already closed. If
+you find an issue that seems to be similar to yours, read through it.
+
+If this issue is the same as yours, you can comment with additional information
+to help the maintainer debug it. Adding a comment will subscribe you to email
+notifications, which can be helpful in getting important updates regarding the
+issue. If you don't have anything to add but still want to receive email
+updates, you can click the "watch" button at the bottom of the comments.
+
+### Nope, Hasn't Been Asked Before
+
+If you can't find anything in the existing issues, don't be shy about filing a
+new one.
+
+You should be sure to include the version the project, as well as versions of
+related software. For example, be sure to include the version numbers output by
+the commands `node --version` and `npm list`. If you notice that your installed
+version is not the latest, use `npm update` and confirm that the issue is still
+there.
+
+Please be as thorough as possible. It helps us address the problem more quickly,
+so everyone wins!
 
 Guidelines for bug reports:
 
@@ -81,6 +121,11 @@ commits.
 implementing features, refactoring code, porting to a different language),
 otherwise you risk spending a lot of time working on something that the
 project's developers might not want to merge into the project.
+
+Before you set out to improve the code, you should have a focused idea in mind
+of what you want to do.
+
+Each commit should do one thing, and each PR should be one specific improvement.
 
 Please adhere to the coding conventions used throughout a project (indentation,
 accurate comments, etc.) and any other requirements (such as test coverage).
@@ -197,3 +242,26 @@ $ git commit -m "Commit message here [ci-skip]"
 
 **IMPORTANT**: By submitting a patch, you agree to allow the project owner to
 license your work under the same license as that used by the project.
+
+
+## Etiquette
+
+### Assume Everyone is Doing Their Best
+
+Project maintainers are busy, so give them some time. Developers involved in
+open source often contribute to many projects. It's not uncommon for a developer
+to receive dozens of issues notifications a day, so be patient. Maybe the
+maintainer has other important things in their life that they need to address.
+Prioritizing those things over something on GitHub doesn't make someone lazy.
+The health, happiness, and wellbeing of the real person on the other end of the
+internet is much more important than any bug.
+
+One of the strengths of open source is that you can always fork and fix problems
+yourself.
+
+
+## Conclusion
+
+Thanks for taking the time to read this! Contributions are welcome. Hopefully,
+this guide will help make good contributions easier and ultimately, everyone
+benefits.
