@@ -777,7 +777,7 @@ describe('useref()', function() {
             should.exist(newFile.contents);
             if (a === 1) {
                 path.normalize(newFile.path).should.equal(path.normalize('./fixtures/css/bundle.css'));
-                path.normalize(newFile.relative).should.equal(path.normalize('css/bundle.css'))
+                path.normalize(newFile.relative).should.equal(path.normalize('css/bundle.css'));
             }
             ++a;
         });
@@ -809,22 +809,21 @@ describe('useref()', function() {
         gulp.src('test/fixtures/11.html')
             .pipe(assets)
             .pipe(through.obj(function (newFile, enc, callback) {
-                should.exist(newFile.contents);
+                var assetpath = [
+                    __dirname + '/fixtures/11.html',
+                    __dirname + '/fixtures/scripts/this.js',
+                    __dirname + '/fixtures/scripts/anotherone.js',
+                    __dirname + '/fixtures/scripts/renamedthat.js',
+                    __dirname + '/fixtures/scripts/renamedyet.js'
+                ];
 
-                switch (fileCount++) { // Order should be maintained
-                    case 1:
-                        path.normalize(newFile.path).should.equal(path.join(__dirname, 'fixtures/scripts/this.js'));
-                        break;
-                    case 2:
-                        path.normalize(newFile.path).should.equal(path.join(__dirname, 'fixtures/scripts/anotherone.js'));
-                        break;
-                    case 3:
-                        path.normalize(newFile.path).should.equal(path.join(__dirname, 'fixtures/scripts/renamedthat.js'));
-                        break;
-                    case 4:
-                        path.normalize(newFile.path).should.equal(path.join(__dirname, 'fixtures/scripts/renamedyet.js'));
-                        break;
-                }
+                assetpath.forEach(function (filepath) {
+                    if (newFile.path === path.normalize(filepath)) {
+                        should.exist(newFile.contents);
+                        newFile.path.should.equal(path.normalize(filepath));
+                        fileCount++;
+                    }
+                });
                 callback();
             }, function () {
                 fileCount.should.equal(5);
