@@ -220,6 +220,39 @@ describe('useref()', function() {
         stream.end();
     });
 
+    it('should concat JS assets with newLine option', function(done) {
+        var a = 0,
+
+            testFile = getFixture('02.html'),
+            separator = '\r\n',
+
+            stream = useref({newLine: separator}),
+
+            buffer1 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'this.js'))),
+            buffer2 = new Buffer(separator),
+            buffer3 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'that.js'))),
+            bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]),
+
+            fileFinal =  new gutil.File({ contents: bufferFinal });
+
+        stream.on('data', function(newFile){
+            if (a === 1) {
+                newFile.path.should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
+                newFile.contents.toString().should.equal(fileFinal.contents.toString());
+            }
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(2);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
     it('should skip concatenation and pass JS assets through with noconcat option', function(done) {
         var a = 0;
 
