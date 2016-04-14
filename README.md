@@ -180,6 +180,13 @@ Default: `false`
 
 Skip concatenation and add all assets to the stream instead.
 
+#### options.newLine
+
+Type: `String`  
+Default: `none`
+
+Add a string that should separate the concatenated files.
+
 #### options.additionalStreams
 
 Type: `Array<Stream>`  
