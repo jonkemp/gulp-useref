@@ -13,8 +13,8 @@
     "gulp-if": "^2.0.0",
     "gulp-util": "^3.0.1",
     "is-relative-url": "1.0.0",
+    "through2": "^2.0.1",
     "useref": "^1.2.0",
-    "through2": "0.6.5",
     "vinyl-fs": "^2.2.1"
   },
   "devDependencies": {
