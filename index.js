@@ -96,7 +96,7 @@ function addAssetsToStream(paths, files) {
         .on('finish', function () {
             var unprocessed = unprocessedCounter.decrement();
 
-            if (unprocessed === 0 && typeof end.fn === 'function') {
+            if (unprocessed === 0 && end.get()) {
                 // end the asset stream
                 end.fn();
             }
