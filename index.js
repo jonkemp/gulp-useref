@@ -61,9 +61,9 @@ function addAssetsToStream(paths, files) {
         base: basePath,
         nosort: true
     })
-    .on('error', function (err) {
-        self.emit('error', new Error(err));
-    });
+        .on('error', function (err) {
+            self.emit('error', new Error(err));
+        });
 
     // add files from external streams
     src = addFilesFromExtStreams.call(self, additionalFiles, globs, src);
