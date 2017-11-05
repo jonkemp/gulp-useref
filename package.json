@@ -18,14 +18,14 @@
     "vinyl-fs": "^2.2.1"
   },
   "devDependencies": {
-    "coveralls": "^2.11.4",
+    "coveralls": "^3.0.0",
     "gulp": "^3.9.0",
-    "gulp-eslint": "^3.0.1",
-    "gulp-mocha": "^3.0.1",
+    "gulp-eslint": "^4.0.0",
+    "gulp-mocha": "^4.3.1",
     "gulp-rename": "^1.2.2",
     "mocha": "*",
     "mock-gulp-dest": "^0.1.1",
-    "nyc": "^8.1.0",
+    "nyc": "^11.3.0",
     "should": "*"
   },
   "engines": {
