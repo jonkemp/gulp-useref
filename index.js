@@ -84,6 +84,7 @@ function addAssetsToStream(paths, files) {
         .pipe(gulpif(!options.noconcat, concat(name, gulpConcatOptions)))
         .pipe(through.obj(function (newFile, encoding, callback) {
             // specify an output path relative to the cwd
+            newFile.path = newFile.path.split("?")[0]; 
             if (options.base) {
                 newFile.path = path.join(options.base, name);
                 newFile.base = options.base;
