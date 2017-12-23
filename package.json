@@ -11,8 +11,8 @@
     "glob": "^7.0.3",
     "gulp-concat": "^2.5.2",
     "gulp-if": "^2.0.0",
-    "gulp-util": "^3.0.1",
     "is-relative-url": "1.0.0",
+    "plugin-error": "^0.1.2",
     "through2": "^2.0.1",
     "useref": "^1.2.0",
     "vinyl-fs": "^2.2.1"
@@ -26,7 +26,8 @@
     "mocha": "*",
     "mock-gulp-dest": "^0.1.1",
     "nyc": "^11.3.0",
-    "should": "*"
+    "should": "*",
+    "vinyl": "^2.1.0"
   },
   "engines": {
     "node": ">=0.10.0"

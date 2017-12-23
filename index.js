@@ -1,6 +1,6 @@
 'use strict';
 var path = require('path'),
-    gutil = require('gulp-util'),
+    PluginError = require('plugin-error'),
     es = require('event-stream'),
     through = require('through2'),
     useref = require('useref'),
@@ -161,7 +161,7 @@ module.exports = function (options) {
             }
 
             if (file.isStream()) {
-                return cb(new gutil.PluginError('gulp-useref', 'Streaming not supported'));
+                return cb(new PluginError('gulp-useref', 'Streaming not supported'));
             }
 
             output = useref(file.contents.toString(), opts);

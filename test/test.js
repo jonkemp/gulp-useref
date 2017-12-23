@@ -4,7 +4,7 @@
 var should = require('should');
 var fs = require('fs');
 var path = require('path');
-var gutil = require('gulp-util');
+var Vinyl = require('vinyl');
 var es = require('event-stream');
 var useref = require('../index');
 var gulp = require('gulp');
@@ -12,7 +12,7 @@ var rename = require('gulp-rename');
 var through = require('through2');
 
 function getFile(filePath) {
-    return new gutil.File({
+    return new Vinyl({
         path:     filePath,
         cwd:      __dirname,
         base:     path.dirname(filePath),
@@ -52,17 +52,17 @@ describe('useref()', function() {
     it('file should pass through', function(done) {
         var a = 0;
 
-        var fakeFile = new gutil.File({
-            path: './test/fixture/file.js',
-            cwd: './test/',
-            base: './test/fixture/',
+        var fakeFile = new Vinyl({
+            path: '/test/fixture/file.js',
+            cwd: '/test/',
+            base: '/test/fixture/',
             contents: new Buffer('wadup();')
         });
 
         var stream = useref();
         stream.on('data', function(newFile){
             should.exist(newFile.contents);
-            newFile.path.should.equal('./test/fixture/file.js');
+            newFile.path.should.equal('/test/fixture/file.js');
             newFile.relative.should.equal('file.js');
             ++a;
         });
@@ -89,7 +89,7 @@ describe('useref()', function() {
             done();
         }));
 
-        stream.write(new gutil.File({
+        stream.write(new Vinyl({
             path: 'null.md',
             contents: null
          }));
@@ -233,7 +233,7 @@ describe('useref()', function() {
             buffer3 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'that.js'))),
             bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]),
 
-            fileFinal =  new gutil.File({ contents: bufferFinal });
+            fileFinal =  new Vinyl({ contents: bufferFinal });
 
         stream.on('data', function(newFile){
             if (a === 1) {
