@@ -15,7 +15,7 @@
     "plugin-error": "^0.1.2",
     "through2": "^2.0.1",
     "useref": "^1.2.0",
-    "vinyl-fs": "^2.2.1"
+    "vinyl-fs": "^3.0.0"
   },
   "devDependencies": {
     "coveralls": "^3.0.0",
