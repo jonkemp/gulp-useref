@@ -253,6 +253,70 @@ describe('useref()', function() {
         stream.end();
     });
 
+    it('should concat JS assets with newLine option when newLineExemptFileExts does not contain variant of js file extension', function(done) {
+        var a = 0,
+
+            testFile = getFixture('02.html'),
+            separator = ';',
+            newLineString = ';',
+            exemptfileExts =  ['.css','.CSS', 'css', 'CSS'],
+
+            stream = useref({newLine: newLineString, newLineExemptFileExts: exemptfileExts}),
+
+            buffer1 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'this.js'))),
+            buffer2 = new Buffer(separator),
+            buffer3 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'that.js'))),
+            bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]),
+
+            fileFinal =  new Vinyl({ contents: bufferFinal });
+
+        stream.on('data', function(newFile){
+            if (a === 1) {
+                newFile.path.should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
+                newFile.contents.toString().should.equal(fileFinal.contents.toString());
+            };
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(2);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
+    it('should concat CSS assets and skip newLine option if newLineExemptFileExts contains variant of css file extension', function(done) {
+        var a = 0,
+
+            testFile = getFixture('concat-css-new-line-exempt-file-exts.html'),
+            newLineString = ';',
+            exemptfileExts =  ['.css','.CSS', 'css', 'CSS'],
+
+            stream = useref({newLine: newLineString, newLineExemptFileExts: exemptfileExts});
+
+        stream.on('data', function(newFile){
+            should.exist(newFile.contents);
+            if (a === 1) {
+                newFile.path.should.equal(path.normalize('./test/fixtures/css/concat-new-line-exempt-file-exts.css'));
+                newFile.contents.toString().should.equal(getExpected('css/concat-new-line-exempt-file-exts.css').contents.toString());
+            }
+            ++a;
+        });
+
+
+        stream.once('end', function () {
+            a.should.equal(2);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
     it('should skip concatenation and pass JS assets through with noconcat option', function(done) {
         var a = 0;
 
