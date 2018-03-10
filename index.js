@@ -28,6 +28,28 @@ function handleAdditionalStreams(additionalStreams) {
     });
 }
 
+function isNewLineExemptFileExt(newLineExemptFileExts, pathsName) {
+    var regex = new RegExp('\\b.?(' + path.extname(pathsName).replace(/^\./, '') + '\\b)', 'gi');
+
+    return regex.test(newLineExemptFileExts.toString());
+}
+
+function addNewLineText(options, pathsName) {
+    var newLine = null;
+
+    if (options.hasOwnProperty('newLine') && typeof options.newLine === 'string') {
+        // pass newLine string argument to gulp-concat
+        newLine = options.newLine;
+    }
+
+    if (options.hasOwnProperty('newLineExemptFileExts') && isNewLineExemptFileExt(options.newLineExemptFileExts, pathsName)) {
+        // pass newLine null argument to gulp-concat
+        newLine = null;
+    }
+
+    return newLine;
+}
+
 function addAssetsToStream(paths, files) {
     var self = this,
         gulpif = require('gulp-if'),
@@ -74,9 +96,7 @@ function addAssetsToStream(paths, files) {
     });
 
     // option for newLine in gulp-concat
-    if (options.hasOwnProperty('newLine')) {
-        gulpConcatOptions.newLine = options.newLine;
-    }
+    gulpConcatOptions.newLine = addNewLineText(options, name);
 
     // Add assets to the stream
     // If noconcat option is false, concat the files first.
