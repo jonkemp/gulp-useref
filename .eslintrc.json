@@ -118,7 +118,7 @@
       3
     ],
     "max-statements": [
-      1,
+      0,
       10
     ],
     "new-cap": 2,
@@ -130,7 +130,6 @@
     "no-array-constructor": 2,
     "no-bitwise": 1,
     "no-lonely-if": 1,
-    "no-multi-spaces": 1,
     "no-multiple-empty-lines": 1,
     "no-new-object": 2,
     "no-spaced-func": 1,
