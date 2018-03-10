@@ -39,6 +39,7 @@ function addAssetsToStream(paths, files) {
         name = paths.name,
         basePath = paths.basePath,
         filepaths = files[name].assets,
+        type = paths.type,
         options = pluginOptions,
         gulpConcatOptions = {};
 
@@ -74,7 +75,7 @@ function addAssetsToStream(paths, files) {
     });
 
     // option for newLine in gulp-concat
-    if (options.hasOwnProperty('newLine')) {
+    if (options.hasOwnProperty('newLine') || type === 'js') {
         gulpConcatOptions.newLine = options.newLine;
     }
 
@@ -121,7 +122,8 @@ function processAssets(file, basePath, data) {
                 basePath: basePath,
                 searchPath: pluginOptions.searchPath,
                 cwd: file.cwd,
-                transformPath: pluginOptions.transformPath
+                transformPath: pluginOptions.transformPath,
+                type: type
             }, files);
         }
     });
