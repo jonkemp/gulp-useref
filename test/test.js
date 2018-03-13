@@ -207,7 +207,7 @@ describe('useref()', function() {
             stream = useref({newLine: separator}),
 
             buffer1 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'css', 'one.css'))),
-            buffer2 = new Buffer(''),
+            buffer2 = new Buffer('\n'),
             buffer3 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'css', 'two.css'))),
             bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]),
 
