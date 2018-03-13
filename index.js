@@ -75,7 +75,10 @@ function addAssetsToStream(paths, files) {
     });
 
     // option for newLine in gulp-concat
-    if (options.hasOwnProperty('newLine') || type === 'js') {
+    if (options.hasOwnProperty('newLine')) {
+        if (options.newLine === ';' && type === 'css') {
+            options.newLine = '';
+        }
         gulpConcatOptions.newLine = options.newLine;
     }
 
