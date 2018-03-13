@@ -165,6 +165,72 @@ describe('useref()', function() {
         stream.end();
     });
 
+    it('should concat CSS assets with newLine option', function (done) {
+        var a = 0,
+
+            testFile = getFixture('01.html'),
+            separator = '\r\n',
+
+            stream = useref({newLine: separator}),
+
+            buffer1 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'css', 'one.css'))),
+            buffer2 = new Buffer(separator),
+            buffer3 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'css', 'two.css'))),
+            bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]),
+
+            fileFinal =  new Vinyl({ contents: bufferFinal });
+
+        stream.on('data', function(newFile){
+            if (a === 1) {
+                newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+                newFile.contents.toString().should.equal(fileFinal.contents.toString());
+            }
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(2);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
+    it('should concat CSS assets but skip newLine option if semicolon', function (done) {
+        var a = 0,
+
+            testFile = getFixture('01.html'),
+            separator = ';',
+
+            stream = useref({newLine: separator}),
+
+            buffer1 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'css', 'one.css'))),
+            buffer2 = new Buffer(''),
+            buffer3 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'css', 'two.css'))),
+            bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]),
+
+            fileFinal =  new Vinyl({ contents: bufferFinal });
+
+        stream.on('data', function(newFile){
+            if (a === 1) {
+                newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+                newFile.contents.toString().should.equal(fileFinal.contents.toString());
+            }
+            ++a;
+        });
+
+        stream.once('end', function () {
+            a.should.equal(2);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
     it('should skip concatenation and pass CSS assets through with noconcat option', function(done) {
         var a = 0;
 
