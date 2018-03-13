@@ -34,13 +34,14 @@ function addAssetsToStream(paths, files) {
         concat = require('gulp-concat'),
         isRelativeUrl = require('is-relative-url'),
         vfs = require('vinyl-fs'),
+        extend = require('extend'),
         src,
         globs,
         name = paths.name,
         basePath = paths.basePath,
         filepaths = files[name].assets,
         type = paths.type,
-        options = pluginOptions,
+        options = extend({}, pluginOptions),
         gulpConcatOptions = {};
 
     if (!filepaths.length) {
