@@ -34,12 +34,14 @@ function addAssetsToStream(paths, files) {
         concat = require('gulp-concat'),
         isRelativeUrl = require('is-relative-url'),
         vfs = require('vinyl-fs'),
+        extend = require('extend'),
         src,
         globs,
         name = paths.name,
         basePath = paths.basePath,
         filepaths = files[name].assets,
-        options = pluginOptions,
+        type = paths.type,
+        options = extend({}, pluginOptions),
         gulpConcatOptions = {};
 
     if (!filepaths.length) {
@@ -75,6 +77,9 @@ function addAssetsToStream(paths, files) {
 
     // option for newLine in gulp-concat
     if (options.hasOwnProperty('newLine')) {
+        if (options.newLine === ';' && type === 'css') {
+            options.newLine = null;
+        }
         gulpConcatOptions.newLine = options.newLine;
     }
 
@@ -121,7 +126,8 @@ function processAssets(file, basePath, data) {
                 basePath: basePath,
                 searchPath: pluginOptions.searchPath,
                 cwd: file.cwd,
-                transformPath: pluginOptions.transformPath
+                transformPath: pluginOptions.transformPath,
+                type: type
             }, files);
         }
     });
