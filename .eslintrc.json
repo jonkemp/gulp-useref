@@ -8,7 +8,7 @@
   "rules": {
     "block-scoped-var": 2,
     "complexity": [
-      1,
+      0,
       5
     ],
     "consistent-return": 1,
