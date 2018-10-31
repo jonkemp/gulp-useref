@@ -19,8 +19,9 @@
     "vinyl-fs": "^3.0.3"
   },
   "devDependencies": {
+    "async-once": "^1.0.1",
     "coveralls": "^3.0.2",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.0",
     "gulp-eslint": "^5.0.0",
     "gulp-mocha": "^6.0.0",
     "gulp-rename": "^1.4.0",
