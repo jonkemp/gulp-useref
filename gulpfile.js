@@ -3,11 +3,10 @@
 
 var gulp = require('gulp'),
     mocha = require('gulp-mocha'),
-    eslint = require('gulp-eslint');
-
-var paths = {
-    scripts: ['./*.js', './lib/*.js', '!./gulpfile.js']
-};
+    eslint = require('gulp-eslint'),
+    paths = {
+        scripts: ['./*.js', './lib/*.js', '!./gulpfile.js']
+    };
 
 gulp.task('lint', function () {
     return gulp.src(paths.scripts)
@@ -22,7 +21,7 @@ gulp.task('test', function () {
 });
 
 gulp.task('watch', function () {
-    gulp.watch(paths.scripts, ['lint', 'test']);
+    gulp.watch(paths.scripts, gulp.parallel('lint', 'test'));
 });
 
-gulp.task('default', ['lint', 'test', 'watch']);
+gulp.task('default', gulp.parallel('lint', 'test', 'watch'));
