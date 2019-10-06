@@ -32,7 +32,6 @@ function addAssetsToStream(paths, files) {
     var self = this,
         gulpif = require('gulp-if'),
         concat = require('gulp-concat'),
-        isRelativeUrl = require('is-relative-url'),
         vfs = require('vinyl-fs'),
         extend = require('extend'),
         src,
@@ -52,7 +51,10 @@ function addAssetsToStream(paths, files) {
 
     // Get relative file paths and join with search paths to send to vinyl-fs
     globs = filepaths
-        .filter(isRelativeUrl)
+        .filter(function (url) {
+            // test if url is relative
+            return !/^(?:\w+:)?\/\//.test(url);
+        })
         .map(function (filepath) {
             paths.filepath = filepath;
 
