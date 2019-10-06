@@ -56,7 +56,7 @@ describe('useref()', function() {
             path: '/test/fixture/file.js',
             cwd: '/test/',
             base: '/test/fixture/',
-            contents: new Buffer('wadup();')
+            contents: Buffer.from('wadup();')
         });
 
         var stream = useref();
@@ -173,9 +173,9 @@ describe('useref()', function() {
 
             stream = useref({newLine: separator}),
 
-            buffer1 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'css', 'one.css'))),
-            buffer2 = new Buffer(separator),
-            buffer3 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'css', 'two.css'))),
+            buffer1 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'css', 'one.css'))),
+            buffer2 = Buffer.from(separator),
+            buffer3 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'css', 'two.css'))),
             bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]),
 
             fileFinal =  new Vinyl({ contents: bufferFinal });
@@ -206,9 +206,9 @@ describe('useref()', function() {
 
             stream = useref({newLine: separator}),
 
-            buffer1 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'css', 'one.css'))),
-            buffer2 = new Buffer('\n'),
-            buffer3 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'css', 'two.css'))),
+            buffer1 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'css', 'one.css'))),
+            buffer2 = Buffer.from('\n'),
+            buffer3 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'css', 'two.css'))),
             bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]),
 
             fileFinal =  new Vinyl({ contents: bufferFinal });
@@ -294,9 +294,9 @@ describe('useref()', function() {
 
             stream = useref({newLine: separator}),
 
-            buffer1 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'this.js'))),
-            buffer2 = new Buffer(separator),
-            buffer3 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'that.js'))),
+            buffer1 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'this.js'))),
+            buffer2 = Buffer.from(separator),
+            buffer3 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'that.js'))),
             bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]),
 
             fileFinal =  new Vinyl({ contents: bufferFinal });
@@ -327,9 +327,9 @@ describe('useref()', function() {
 
             stream = useref({newLine: separator}),
 
-            buffer1 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'this.js'))),
-            buffer2 = new Buffer(separator),
-            buffer3 = new Buffer(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'that.js'))),
+            buffer1 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'this.js'))),
+            buffer2 = Buffer.from(separator),
+            buffer3 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'that.js'))),
             bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]),
 
             fileFinal =  new Vinyl({ contents: bufferFinal });
