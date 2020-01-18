@@ -1,6 +1,6 @@
 {
   "name": "gulp-useref",
-  "version": "4.0.0",
+  "version": "4.0.1",
   "description": "Parse build blocks in HTML files to replace references to non-optimized scripts or stylesheets.",
   "main": "index.js",
   "directories": {
