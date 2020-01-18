@@ -1,20 +1,19 @@
 /* eslint-disable */
 /* global describe, it */
 
-'use strict';
-var should = require('should'),
-    path = require('path'),
-    gulp = require('gulp'),
-    useref = require('../index'),
-    through = require('through2'),
-    once = require('async-once');
+const should = require('should');
+const path = require('path');
+const gulp = require('gulp');
+const useref = require('../index');
+const through = require('through2');
+const once = require('async-once');
 
 describe('bulk files', function () {
     this.timeout(5000);
 
-    it('should handle all files', function (done) {
-        var seriesFn,
-            mockGulpDest = require('mock-gulp-dest')(gulp);
+    it('should handle all files', done => {
+        let seriesFn;
+        const mockGulpDest = require('mock-gulp-dest')(gulp);
 
         function bulk() {
             return gulp.src('test/fixtures/bulk/useref.*.html')
@@ -22,7 +21,7 @@ describe('bulk files', function () {
                 .pipe(gulp.dest('dest', { cwd: 'test' }));
         }
 
-        seriesFn = gulp.series(bulk, once(function () {
+        seriesFn = gulp.series(bulk, once(() => {
             mockGulpDest.cwd().should.equal(__dirname);
             mockGulpDest.basePath().should.equal(path.join(__dirname, 'dest'));
             mockGulpDest.assertDestContains([
@@ -144,9 +143,9 @@ describe('bulk files', function () {
         seriesFn();
     });
 
-    it('should handle all assets', function (done) {
-        var seriesFn,
-            mockGulpDest = require('mock-gulp-dest')(gulp);
+    it('should handle all assets', done => {
+        let seriesFn;
+        const mockGulpDest = require('mock-gulp-dest')(gulp);
 
         function bulk() {
             return gulp.src('test/fixtures/bulk/useref.56.html')
@@ -154,7 +153,7 @@ describe('bulk files', function () {
                 .pipe(gulp.dest('dest', { cwd: 'test' }));
         }
 
-        seriesFn = gulp.series(bulk, once(function () {
+        seriesFn = gulp.series(bulk, once(() => {
             mockGulpDest.cwd().should.equal(__dirname);
             mockGulpDest.basePath().should.equal(path.join(__dirname, 'dest'));
             mockGulpDest.assertDestContains([
@@ -223,15 +222,15 @@ describe('bulk files', function () {
         seriesFn();
     });
 
-    it('should not end the stream prematurely', function (done) {
-        var fileCount = 0;
+    it('should not end the stream prematurely', done => {
+        let fileCount = 0;
 
         gulp.src('test/fixtures/04.html')
             .pipe(useref())
-            .pipe(through.obj({ highWaterMark: 1 }, function (newFile, enc, callback) {
+            .pipe(through.obj({ highWaterMark: 1 }, (newFile, enc, callback) => {
                 fileCount++;
                 setTimeout(callback, 750);
-            }, function (cb) {
+            }, cb => {
                 fileCount.should.equal(5);
                 done();
                 cb();

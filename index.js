@@ -1,47 +1,44 @@
-'use strict';
-var path = require('path'),
-    PluginError = require('plugin-error'),
-    es = require('event-stream'),
-    through = require('through2'),
-    useref = require('useref'),
-    getGlobs = require('./lib/getGlobs'),
-    addFilesFromExtStreams = require('./lib/addFilesFromExtStreams'),
-    addHtmlToStream = require('./lib/addHtmlToStream'),
-    unprocessedCounter = require('./lib/unprocessedCounter')(),
-    end = require('./lib/end')(),
-    additionalFiles = [],
-    transforms,
-    pluginOptions;
+const path = require('path');
+const PluginError = require('plugin-error');
+const es = require('event-stream');
+const through = require('through2');
+const useref = require('useref');
+const getGlobs = require('./lib/getGlobs');
+const addFilesFromExtStreams = require('./lib/addFilesFromExtStreams');
+const addHtmlToStream = require('./lib/addHtmlToStream');
+const unprocessedCounter = require('./lib/unprocessedCounter')();
+const end = require('./lib/end')();
+const additionalFiles = [];
+let transforms;
+let pluginOptions;
 
 function handleAdditionalStreams(additionalStreams) {
-    var _additionalStreams = additionalStreams;
+    let _additionalStreams = additionalStreams;
 
     if (!Array.isArray(additionalStreams)) {
         _additionalStreams = [ additionalStreams ];
     }
 
-    return _additionalStreams.map(function (stream) {
-        // filters stream to select needed files
-        return stream.pipe(es.through(function (file) {
-            additionalFiles.push(file);
-        }));
-    });
+    // filters stream to select needed files
+    return _additionalStreams.map(stream => stream.pipe(es.through(file => {
+        additionalFiles.push(file);
+    })));
 }
 
 function addAssetsToStream(paths, files) {
-    var self = this,
-        gulpif = require('gulp-if'),
-        concat = require('gulp-concat'),
-        vfs = require('vinyl-fs'),
-        extend = require('extend'),
-        src,
-        globs,
-        name = paths.name,
-        basePath = paths.basePath,
-        filepaths = files[name].assets,
-        type = paths.type,
-        options = extend({}, pluginOptions),
-        gulpConcatOptions = {};
+    const self = this;
+    const gulpif = require('gulp-if');
+    const concat = require('gulp-concat');
+    const vfs = require('vinyl-fs');
+    const extend = require('extend');
+    let src;
+    let globs;
+    const name = paths.name;
+    const basePath = paths.basePath;
+    const filepaths = files[name].assets;
+    const type = paths.type;
+    const options = extend({}, pluginOptions);
+    const gulpConcatOptions = {};
 
     if (!filepaths.length) {
         return;
@@ -51,11 +48,8 @@ function addAssetsToStream(paths, files) {
 
     // Get relative file paths and join with search paths to send to vinyl-fs
     globs = filepaths
-        .filter(function (url) {
-            // test if url is relative
-            return !/^(?:\w+:)?\/\//.test(url);
-        })
-        .map(function (filepath) {
+        .filter(url => !/^(?:\w+:)?\/\//.test(url)) // test if url is relative
+        .map(filepath => {
             paths.filepath = filepath;
 
             return getGlobs(paths, files);
@@ -65,7 +59,7 @@ function addAssetsToStream(paths, files) {
         base: basePath,
         nosort: true
     })
-        .on('error', function (err) {
+        .on('error', err => {
             self.emit('error', new Error(err));
         });
 
@@ -73,7 +67,7 @@ function addAssetsToStream(paths, files) {
     src = addFilesFromExtStreams.call(self, additionalFiles, globs, src);
 
     // If any external transforms were included, pipe all files to them first
-    transforms.forEach(function (fn) {
+    transforms.forEach(fn => {
         src = src.pipe(fn(name));
     });
 
@@ -89,7 +83,7 @@ function addAssetsToStream(paths, files) {
     // If noconcat option is false, concat the files first.
     src
         .pipe(gulpif(!options.noconcat, concat(name, gulpConcatOptions)))
-        .pipe(through.obj(function (newFile, encoding, callback) {
+        .pipe(through.obj((newFile, encoding, callback) => {
             // specify an output path relative to the cwd
             if (options.base) {
                 newFile.path = path.join(options.base, name);
@@ -100,8 +94,8 @@ function addAssetsToStream(paths, files) {
             self.push(newFile);
             callback();
         }))
-        .on('finish', function () {
-            var unprocessed = unprocessedCounter.decrement();
+        .on('finish', () => {
+            const unprocessed = unprocessedCounter.decrement();
 
             if (unprocessed === 0 && end.get()) {
                 // end the asset stream
@@ -110,13 +104,13 @@ function addAssetsToStream(paths, files) {
         });
 }
 
-function processAssets(file, basePath, data) {
-    var self = this,
-        types = pluginOptions.types || [ 'css', 'js' ];
+function processAssets({ cwd }, basePath, data) {
+    const self = this;
+    const types = pluginOptions.types || [ 'css', 'js' ];
 
-    types.forEach(function (type) {
-        var files = data[type],
-            name;
+    types.forEach(type => {
+        const files = data[type];
+        let name;
 
         if (!files) {
             return;
@@ -124,21 +118,21 @@ function processAssets(file, basePath, data) {
 
         for (name in files) {
             addAssetsToStream.call(self, {
-                name: name,
-                basePath: basePath,
+                name,
+                basePath,
                 searchPath: pluginOptions.searchPath,
-                cwd: file.cwd,
+                cwd,
                 transformPath: pluginOptions.transformPath,
-                type: type
+                type
             }, files);
         }
     });
 }
 
 module.exports = function (options) {
-    var opts = options || {},
-        waitForAssets,
-        additionalStreams;
+    const opts = options || {};
+    let waitForAssets;
+    let additionalStreams;
 
     pluginOptions = opts;
     transforms = Array.prototype.slice.call(arguments, 1);
@@ -155,14 +149,14 @@ module.exports = function (options) {
     }
 
     return through.obj(function (file, enc, cb) {
-        var self = this;
+        const self = this;
 
-        waitForAssets.pipe(es.wait(function () {
-            var output,
+        waitForAssets.pipe(es.wait(() => {
+            let output;
 
-                // Cache the file base path relative to the cwd
-                // Use later when it could be dropped
-                _basePath = path.dirname(file.path);
+            // Cache the file base path relative to the cwd
+            // Use later when it could be dropped
+            const _basePath = path.dirname(file.path);
 
             if (file.isNull()) {
                 return cb(null, file);
@@ -188,9 +182,9 @@ module.exports = function (options) {
         if (!additionalStreams) {
             waitForAssets.emit('end');
         }
-    }, function (cb) {
-        var unprocessed = unprocessedCounter.get(),
-            fn = function () {};
+    }, cb => {
+        const unprocessed = unprocessedCounter.get();
+        let fn = () => {};
 
         end.set(cb);
 

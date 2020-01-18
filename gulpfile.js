@@ -1,26 +1,21 @@
 /* eslint-disable */
-'use strict';
+const gulp = require('gulp');
+const mocha = require('gulp-mocha');
+const eslint = require('gulp-eslint');
 
-var gulp = require('gulp'),
-    mocha = require('gulp-mocha'),
-    eslint = require('gulp-eslint'),
-    paths = {
-        scripts: ['./*.js', './lib/*.js', '!./gulpfile.js']
-    };
+const paths = {
+    scripts: ['./*.js', './lib/*.js', '!./gulpfile.js']
+};
 
-gulp.task('lint', function () {
-    return gulp.src(paths.scripts)
-        .pipe(eslint())
-        .pipe(eslint.format())
-        .pipe(eslint.failAfterError());
-});
+gulp.task('lint', () => gulp.src(paths.scripts)
+    .pipe(eslint({fix: true}))
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError()));
 
-gulp.task('test', function () {
-    return gulp.src('./test/*.js')
-        .pipe(mocha({ reporter: 'spec' }));
-});
+gulp.task('test', () => gulp.src('./test/*.js')
+    .pipe(mocha({ reporter: 'spec' })));
 
-gulp.task('watch', function () {
+gulp.task('watch', () => {
     gulp.watch(paths.scripts, gulp.parallel('lint', 'test'));
 });
 

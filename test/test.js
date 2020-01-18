@@ -1,15 +1,14 @@
 /* eslint-disable */
 /* global describe, it */
-'use strict';
-var should = require('should');
-var fs = require('fs');
-var path = require('path');
-var Vinyl = require('vinyl');
-var es = require('event-stream');
-var useref = require('../index');
-var gulp = require('gulp');
-var rename = require('gulp-rename');
-var through = require('through2');
+const should = require('should');
+const fs = require('fs');
+const path = require('path');
+const Vinyl = require('vinyl');
+const es = require('event-stream');
+const useref = require('../index');
+const gulp = require('gulp');
+const rename = require('gulp-rename');
+const through = require('through2');
 
 function getFile(filePath) {
     return new Vinyl({
@@ -29,15 +28,15 @@ function getExpected(filePath) {
 }
 
 function compare(name, expectedName, done) {
-    var stream = useref({ noAssets: true });
+    const stream = useref({ noAssets: true });
 
-    stream.on('data', function(newFile) {
+    stream.on('data', newFile => {
         if (path.basename(newFile.path) === name) {
             should(String(getExpected(expectedName).contents)).eql(String(newFile.contents));
         }
     });
 
-    stream.on('end', function() {
+    stream.on('end', () => {
         done();
     });
 
@@ -49,25 +48,25 @@ function compare(name, expectedName, done) {
 describe('useref()', function() {
     this.timeout(5000);
 
-    it('file should pass through', function(done) {
-        var a = 0;
+    it('file should pass through', done => {
+        let a = 0;
 
-        var fakeFile = new Vinyl({
+        const fakeFile = new Vinyl({
             path: '/test/fixture/file.js',
             cwd: '/test/',
             base: '/test/fixture/',
             contents: Buffer.from('wadup();')
         });
 
-        var stream = useref();
-        stream.on('data', function(newFile){
+        const stream = useref();
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             newFile.path.should.equal('/test/fixture/file.js');
             newFile.relative.should.equal('file.js');
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(1);
             done();
         });
@@ -76,15 +75,15 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should let null files pass through', function(done) {
-        var stream = useref({ noAssets: true }),
-            n = 0;
+    it('should let null files pass through', done => {
+        const stream = useref({ noAssets: true });
+        let n = 0;
 
-        stream.pipe(es.through(function(file) {
+        stream.pipe(es.through(file => {
             should.equal(file.path, 'null.md');
             should.equal(file.contents,  null);
             n++;
-        }, function() {
+        }, () => {
             should.equal(n, 1);
             done();
         }));
@@ -97,41 +96,41 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should emit error on streamed file', function (done) {
+    it('should emit error on streamed file', done => {
         gulp.src(path.join('test', 'fixtures', '01.html'), { buffer: false })
             .pipe(useref({ noAssets: true }))
-            .on('error', function (err) {
-                err.message.should.equal('Streaming not supported');
+            .on('error', ({message}) => {
+                message.should.equal('Streaming not supported');
                 done();
             });
     });
 
-    it('should replace reference in css block and return replaced files', function(done) {
+    it('should replace reference in css block and return replaced files', done => {
         compare('01.html', '01.html', done);
     });
 
-    it('should replace reference in js block and return replaced files', function(done) {
+    it('should replace reference in js block and return replaced files', done => {
         compare('02.html', '02.html', done);
     });
 
-    it('should handle comments and whitespace in blocks', function(done) {
+    it('should handle comments and whitespace in blocks', done => {
         compare('03.html', '03.html', done);
     });
 
-    it('should handle multiple blocks', function(done) {
+    it('should handle multiple blocks', done => {
         compare('04.html', '04.html', done);
     });
 
-    it('should handle custom blocks', function (done) {
-        var stream = useref({
+    it('should handle custom blocks', done => {
+        const stream = useref({
             noAssets: true,
-            custom: function (content, target) {
+            custom(content, target) {
                 return content === 'someContent' ? target : content;
             }
         });
 
-        stream.on('data', function (newFile) {
-            getExpected('custom-blocks.html').contents.toString().should.equal(newFile.contents.toString());
+        stream.on('data', ({contents}) => {
+            getExpected('custom-blocks.html').contents.toString().should.equal(contents.toString());
         });
 
         stream.on('end', done);
@@ -140,14 +139,14 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should concat CSS assets and pass them through', function(done) {
-        var a = 0;
+    it('should concat CSS assets and pass them through', done => {
+        let a = 0;
 
-        var testFile = getFixture('01.html');
+        const testFile = getFixture('01.html');
 
-        var stream = useref();
+        const stream = useref();
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             if (a === 1) {
                 newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
@@ -155,7 +154,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -165,22 +164,18 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should concat CSS assets with newLine option', function (done) {
-        var a = 0,
+    it('should concat CSS assets with newLine option', done => {
+        let a = 0;
+        const testFile = getFixture('01.html');
+        const separator = '\r\n';
+        const stream = useref({newLine: separator});
+        const buffer1 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'css', 'one.css')));
+        const buffer2 = Buffer.from(separator);
+        const buffer3 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'css', 'two.css')));
+        const bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]);
+        const fileFinal =  new Vinyl({ contents: bufferFinal });
 
-            testFile = getFixture('01.html'),
-            separator = '\r\n',
-
-            stream = useref({newLine: separator}),
-
-            buffer1 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'css', 'one.css'))),
-            buffer2 = Buffer.from(separator),
-            buffer3 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'css', 'two.css'))),
-            bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]),
-
-            fileFinal =  new Vinyl({ contents: bufferFinal });
-
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             if (a === 1) {
                 newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
                 newFile.contents.toString().should.equal(fileFinal.contents.toString());
@@ -188,7 +183,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -198,22 +193,18 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should concat CSS assets but skip newLine option if semicolon', function (done) {
-        var a = 0,
+    it('should concat CSS assets but skip newLine option if semicolon', done => {
+        let a = 0;
+        const testFile = getFixture('01.html');
+        const separator = ';';
+        const stream = useref({newLine: separator});
+        const buffer1 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'css', 'one.css')));
+        const buffer2 = Buffer.from('\n');
+        const buffer3 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'css', 'two.css')));
+        const bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]);
+        const fileFinal =  new Vinyl({ contents: bufferFinal });
 
-            testFile = getFixture('01.html'),
-            separator = ';',
-
-            stream = useref({newLine: separator}),
-
-            buffer1 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'css', 'one.css'))),
-            buffer2 = Buffer.from('\n'),
-            buffer3 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'css', 'two.css'))),
-            bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]),
-
-            fileFinal =  new Vinyl({ contents: bufferFinal });
-
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             if (a === 1) {
                 newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
                 newFile.contents.toString().should.equal(fileFinal.contents.toString());
@@ -221,7 +212,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -231,14 +222,14 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should skip concatenation and pass CSS assets through with noconcat option', function(done) {
-        var a = 0;
+    it('should skip concatenation and pass CSS assets through with noconcat option', done => {
+        let a = 0;
 
-        var testFile = getFixture('01.html');
+        const testFile = getFixture('01.html');
 
-        var stream = useref({ noconcat: true });
+        const stream = useref({ noconcat: true });
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
 
             if (a === 0) {
@@ -251,7 +242,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(3);
             done();
         });
@@ -261,14 +252,14 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should concat JS assets and pass them through', function(done) {
-        var a = 0;
+    it('should concat JS assets and pass them through', done => {
+        let a = 0;
 
-        var testFile = getFixture('02.html');
+        const testFile = getFixture('02.html');
 
-        var stream = useref();
+        const stream = useref();
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             if (a === 1) {
                 newFile.path.should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
@@ -276,7 +267,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -286,22 +277,18 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should concat JS assets with newLine option', function(done) {
-        var a = 0,
+    it('should concat JS assets with newLine option', done => {
+        let a = 0;
+        const testFile = getFixture('02.html');
+        const separator = '\r\n';
+        const stream = useref({newLine: separator});
+        const buffer1 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'this.js')));
+        const buffer2 = Buffer.from(separator);
+        const buffer3 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'that.js')));
+        const bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]);
+        const fileFinal =  new Vinyl({ contents: bufferFinal });
 
-            testFile = getFixture('02.html'),
-            separator = '\r\n',
-
-            stream = useref({newLine: separator}),
-
-            buffer1 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'this.js'))),
-            buffer2 = Buffer.from(separator),
-            buffer3 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'that.js'))),
-            bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]),
-
-            fileFinal =  new Vinyl({ contents: bufferFinal });
-
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             if (a === 1) {
                 newFile.path.should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
                 newFile.contents.toString().should.equal(fileFinal.contents.toString());
@@ -309,7 +296,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -319,22 +306,18 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should concat JS assets with newLine option if semicolon', function(done) {
-        var a = 0,
+    it('should concat JS assets with newLine option if semicolon', done => {
+        let a = 0;
+        const testFile = getFixture('02.html');
+        const separator = ';';
+        const stream = useref({newLine: separator});
+        const buffer1 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'this.js')));
+        const buffer2 = Buffer.from(separator);
+        const buffer3 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'that.js')));
+        const bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]);
+        const fileFinal =  new Vinyl({ contents: bufferFinal });
 
-            testFile = getFixture('02.html'),
-            separator = ';',
-
-            stream = useref({newLine: separator}),
-
-            buffer1 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'this.js'))),
-            buffer2 = Buffer.from(separator),
-            buffer3 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'that.js'))),
-            bufferFinal = Buffer.concat([buffer1, buffer2, buffer3]),
-
-            fileFinal =  new Vinyl({ contents: bufferFinal });
-
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             if (a === 1) {
                 newFile.path.should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
                 newFile.contents.toString().should.equal(fileFinal.contents.toString());
@@ -342,7 +325,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -352,14 +335,14 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should skip concatenation and pass JS assets through with noconcat option', function(done) {
-        var a = 0;
+    it('should skip concatenation and pass JS assets through with noconcat option', done => {
+        let a = 0;
 
-        var testFile = getFixture('02.html');
+        const testFile = getFixture('02.html');
 
-        var stream = useref({ noconcat: true });
+        const stream = useref({ noconcat: true });
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
 
             if (a === 0) {
@@ -372,7 +355,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(3);
             done();
         });
@@ -382,14 +365,14 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should handle an alternate css search path', function(done) {
-        var a = 0;
+    it('should handle an alternate css search path', done => {
+        let a = 0;
 
-        var testFile = getFixture('05.html');
+        const testFile = getFixture('05.html');
 
-        var stream = useref();
+        const stream = useref();
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             if (a === 1) {
                 newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
@@ -397,7 +380,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -407,14 +390,14 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should handle an alternate js search path', function(done) {
-        var a = 0;
+    it('should handle an alternate js search path', done => {
+        let a = 0;
 
-        var testFile = getFixture('06.html');
+        const testFile = getFixture('06.html');
 
-        var stream = useref();
+        const stream = useref();
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             if (a === 1) {
                 newFile.path.should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
@@ -422,7 +405,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -432,14 +415,14 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should handle an alternate js search path with file separator', function(done) {
-        var a = 0;
+    it('should handle an alternate js search path with file separator', done => {
+        let a = 0;
 
-        var testFile = getFixture('12.html');
+        const testFile = getFixture('12.html');
 
-        var stream = useref();
+        const stream = useref();
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             if (a === 1) {
                 newFile.path.should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
@@ -447,7 +430,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -457,16 +440,16 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should get the alternate search path from options via string', function(done) {
-        var a = 0;
+    it('should get the alternate search path from options via string', done => {
+        let a = 0;
 
-        var testFile = getFixture('07.html');
+        const testFile = getFixture('07.html');
 
-        var stream = useref({
+        const stream = useref({
             searchPath: '.tmp'
         });
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             switch (newFile.path) {
                 case path.normalize('./test/fixtures/scripts/main.js'):
@@ -479,7 +462,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(3);
             done();
         });
@@ -489,16 +472,16 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should get the alternate search path from options via array', function(done) {
-        var a = 0;
+    it('should get the alternate search path from options via array', done => {
+        let a = 0;
 
-        var testFile = getFixture('07.html');
+        const testFile = getFixture('07.html');
 
-        var stream = useref({
+        const stream = useref({
             searchPath: ['.tmp']
         });
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             switch (newFile.path) {
                 case path.normalize('./test/fixtures/scripts/main.js'):
@@ -511,7 +494,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(3);
             done();
         });
@@ -521,16 +504,16 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should get the alternate search paths from options via array', function(done) {
-        var a = 0;
+    it('should get the alternate search paths from options via array', done => {
+        let a = 0;
 
-        var testFile = getFixture('alternate-search-paths.html');
+        const testFile = getFixture('alternate-search-paths.html');
 
-        var stream = useref({
+        const stream = useref({
             searchPath: ['.tmp', 'fixtures']
         });
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             switch (newFile.path) {
                 case path.normalize('./test/fixtures/scripts/main.js'):
@@ -543,7 +526,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(3);
             done();
         });
@@ -553,16 +536,16 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should get the alternate search paths from options with brace expansion', function(done) {
-        var a = 0;
+    it('should get the alternate search paths from options with brace expansion', done => {
+        let a = 0;
 
-        var testFile = getFixture('alternate-search-paths.html');
+        const testFile = getFixture('alternate-search-paths.html');
 
-        var stream = useref({
+        const stream = useref({
             searchPath: '{.tmp,fixtures}'
         });
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             switch (newFile.path) {
                 case path.normalize('./test/fixtures/scripts/main.js'):
@@ -575,7 +558,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(3);
             done();
         });
@@ -585,16 +568,16 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should get assets with parent directory reference using brace expansion', function(done) {
-        var a = 0;
+    it('should get assets with parent directory reference using brace expansion', done => {
+        let a = 0;
 
-        var testFile = getFixture('07.html');
+        const testFile = getFixture('07.html');
 
-        var stream = useref({
+        const stream = useref({
             searchPath: '{.{,t{,m}}p,../another/search/path}'
         });
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             switch (newFile.path) {
                 case path.normalize('./test/fixtures/scripts/main.js'):
@@ -607,7 +590,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(3);
             done();
         });
@@ -617,21 +600,21 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should handle an alternate search path in multiple build blocks', function(done) {
-        var a = 0;
+    it('should handle an alternate search path in multiple build blocks', done => {
+        let a = 0;
 
-        var testFile = getFixture('08.html');
+        const testFile = getFixture('08.html');
 
-        var stream = useref();
+        const stream = useref();
 
-        stream.on('data', function(newFile){
-            var assetpath = [
+        stream.on('data', newFile => {
+            const assetpath = [
                 './test/fixtures/css/combined.css',
                 './test/fixtures/scripts/combined.min.js',
                 './test/fixtures/scripts/combined2.min.js'
             ];
 
-            assetpath.forEach(function (filepath) {
+            assetpath.forEach(filepath => {
                 if (newFile.path === path.normalize(filepath)) {
                     should.exist(newFile.contents);
                     newFile.path.should.equal(path.normalize(filepath));
@@ -640,7 +623,7 @@ describe('useref()', function() {
             });
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(3);
             done();
         });
@@ -650,20 +633,20 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should ignore build blocks with no assets', function(done) {
-        var a = 0;
+    it('should ignore build blocks with no assets', done => {
+        let a = 0;
 
-        var testFile = getFixture('09.html');
+        const testFile = getFixture('09.html');
 
-        var stream = useref();
+        const stream = useref();
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             newFile.path.should.not.equal(path.normalize('./test/fixtures/css/vendor.css'));
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(1);
             done();
         });
@@ -673,18 +656,18 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should understand absolute search paths', function(done) {
-        var a = 0;
+    it('should understand absolute search paths', done => {
+        let a = 0;
 
-        var testFile = getFixture('absolute-search-path.html');
+        const testFile = getFixture('absolute-search-path.html');
 
-        var searchPath = path.join(__dirname, 'fixtures', 'css');
+        const searchPath = path.join(__dirname, 'fixtures', 'css');
 
-        var stream = useref({
-            searchPath: searchPath
+        const stream = useref({
+            searchPath
         });
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             if (a === 1) {
                 newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
@@ -692,7 +675,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -702,10 +685,10 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should not explode on custom blocks', function (done) {
-        var stream = useref();
+    it('should not explode on custom blocks', done => {
+        const stream = useref();
 
-        stream.on('end', function () {
+        stream.on('end', () => {
             done();
         });
 
@@ -715,14 +698,14 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should work with relative paths', function(done) {
-        var a = 0;
+    it('should work with relative paths', done => {
+        let a = 0;
 
-        var testFile = getFixture('10.html');
+        const testFile = getFixture('10.html');
 
-        var stream = useref();
+        const stream = useref();
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             if (a === 1) {
                 path.normalize(newFile.path).should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
@@ -730,7 +713,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -740,14 +723,14 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should ignore absolute urls', function(done) {
-        var a = 0;
+    it('should ignore absolute urls', done => {
+        let a = 0;
 
-        var testFile = getFixture('remote-path.html');
+        const testFile = getFixture('remote-path.html');
 
-        var stream = useref();
+        const stream = useref();
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             if (a === 1) {
                 path.normalize(newFile.path).should.equal(path.normalize('./test/fixtures/css/combined.css'));
@@ -755,7 +738,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -765,18 +748,18 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should transform paths when transformPath function is set', function(done) {
-        var a = 0;
+    it('should transform paths when transformPath function is set', done => {
+        let a = 0;
 
-        var testFile = getFixture('bad-path.html');
+        const testFile = getFixture('bad-path.html');
 
-        var stream = useref({
-            transformPath : function(filePath) {
+        const stream = useref({
+            transformPath(filePath) {
                 return filePath.replace('/rootpath','');
             }
         });
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             if (a === 1) {
                 path.normalize(newFile.path).should.equal(path.normalize('./test/fixtures/css/combined.css'));
@@ -784,7 +767,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -794,12 +777,12 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should return the assets in the order they were found', function(done) {
-        var testOrderFile = getFixture('order.html');
+    it('should return the assets in the order they were found', done => {
+        const testOrderFile = getFixture('order.html');
 
-        var stream = useref();
+        const stream = useref();
 
-        stream.on('data',function(newFile){
+        stream.on('data',newFile => {
             if (newFile.path === path.normalize('./test/fixtures/css/ordered.css')) {
                 should(String(getExpected('css/ordered.css').contents)).eql(String(newFile.contents));
 
@@ -812,14 +795,14 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should output assets to a folder relative to the cwd', function(done) {
-        var a = 0;
+    it('should output assets to a folder relative to the cwd', done => {
+        let a = 0;
 
-        var testFile = getFixture('02.html');
+        const testFile = getFixture('02.html');
 
-        var stream = useref({ base: 'app' });
+        const stream = useref({ base: 'app' });
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             if (a === 1) {
                 path.normalize(newFile.path).should.equal(path.normalize('./app/scripts/combined.js'));
@@ -827,7 +810,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -837,14 +820,14 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should find assets relative to the root', function(done) {
-        var a = 0;
+    it('should find assets relative to the root', done => {
+        let a = 0;
 
-        var testFile = getFixture(path.join('relative', 'child', 'index.html'));
+        const testFile = getFixture(path.join('relative', 'child', 'index.html'));
 
-        var stream = useref();
+        const stream = useref();
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             if (a === 1) {
                 path.normalize(newFile.path).should.equal(path.normalize('./test/fixtures/relative/styles/bundle.css'));
@@ -852,7 +835,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -862,17 +845,17 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should set file.base when asked', function(done) {
-        var a = 0;
+    it('should set file.base when asked', done => {
+        let a = 0;
 
-        var testFile = getFixture(path.join('templates1', 'component.html'));
+        const testFile = getFixture(path.join('templates1', 'component.html'));
 
-        var stream = useref({
+        const stream = useref({
             searchPath: 'fixtures',
             base: 'fixtures'
         });
 
-        stream.on('data', function(newFile){
+        stream.on('data', newFile => {
             should.exist(newFile.contents);
             if (a === 1) {
                 path.normalize(newFile.path).should.equal(path.normalize('./fixtures/css/bundle.css'));
@@ -881,7 +864,7 @@ describe('useref()', function() {
             ++a;
         });
 
-        stream.once('end', function () {
+        stream.once('end', () => {
             a.should.equal(2);
             done();
         });
@@ -891,32 +874,32 @@ describe('useref()', function() {
         stream.end();
     });
 
-    it('should support external streams', function(done) {
-        var extStream1 = gulp.src('test/fixtures/scripts/that.js')
+    it('should support external streams', done => {
+        const extStream1 = gulp.src('test/fixtures/scripts/that.js')
             .pipe(rename('renamedthat.js'));
 
-        var extStream2 = gulp.src('test/fixtures/scripts/yetonemore.js')
+        const extStream2 = gulp.src('test/fixtures/scripts/yetonemore.js')
             .pipe(rename('renamedyet.js'));
 
-        var fileCount = 0;
+        let fileCount = 0;
 
-        var assets = useref({
+        const assets = useref({
             noconcat: true,
             additionalStreams: [extStream1, extStream2]
         });
 
         gulp.src('test/fixtures/11.html')
             .pipe(assets)
-            .pipe(through.obj(function (newFile, enc, callback) {
-                var assetpath = [
-                    __dirname + '/fixtures/11.html',
-                    __dirname + '/fixtures/scripts/this.js',
-                    __dirname + '/fixtures/scripts/anotherone.js',
-                    __dirname + '/fixtures/scripts/renamedthat.js',
-                    __dirname + '/fixtures/scripts/renamedyet.js'
+            .pipe(through.obj((newFile, enc, callback) => {
+                const assetpath = [
+                    `${__dirname}/fixtures/11.html`,
+                    `${__dirname}/fixtures/scripts/this.js`,
+                    `${__dirname}/fixtures/scripts/anotherone.js`,
+                    `${__dirname}/fixtures/scripts/renamedthat.js`,
+                    `${__dirname}/fixtures/scripts/renamedyet.js`
                 ];
 
-                assetpath.forEach(function (filepath) {
+                assetpath.forEach(filepath => {
                     if (newFile.path === path.normalize(filepath)) {
                         should.exist(newFile.contents);
                         newFile.path.should.equal(path.normalize(filepath));
@@ -924,19 +907,19 @@ describe('useref()', function() {
                     }
                 });
                 callback();
-            }, function () {
+            }, () => {
                 fileCount.should.equal(5);
                 done();
             }));
     });
 });
 
-describe('on error', function () {
-    it('should emit an error if one of the assets is not found', function (done) {
-        var testNonExistentFile = getFixture('nonexistent.html');
-        var stream = useref();
+describe('on error', () => {
+    it('should emit an error if one of the assets is not found', done => {
+        const testNonExistentFile = getFixture('nonexistent.html');
+        const stream = useref();
 
-        stream.on('error', function (err) {
+        stream.on('error', err => {
             err.should.match(/File not found with singular glob/);
             done();
         });
