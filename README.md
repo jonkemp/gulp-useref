@@ -182,10 +182,19 @@ Skip concatenation and add all assets to the stream instead.
 
 #### options.newLine
 
-Type: `String`  
+Type: `String` or `Object`
 Default: `none`
 
-Add a string that should separate the concatenated files.
+Add a string that should separate the concatenated files. To specify a newLine per type of file processed, provide an object with types as keys and the newLine options as values. For example:
+
+```javascript
+useref({
+    newLine: {
+        js: ';\n',
+        css: '\n'
+    }
+})
+```
 
 #### options.additionalStreams
 
