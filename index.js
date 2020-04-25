@@ -74,7 +74,7 @@ function addAssetsToStream(paths, files) {
     // option for newLine in gulp-concat
     if (Object.prototype.hasOwnProperty.call(options, 'newLine')) {
         if (typeof options.newLine === 'object') {
-          options.newLine = options.newLine[type];
+            options.newLine = options.newLine[type];
         } else if (options.newLine === ';' && type === 'css') {
             options.newLine = null;
         }
