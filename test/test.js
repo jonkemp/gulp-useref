@@ -3,6 +3,7 @@
 const should = require('should');
 const fs = require('fs');
 const path = require('path');
+const { pipeline } = require('stream');
 const Vinyl = require('vinyl');
 const es = require('event-stream');
 const useref = require('../index');
@@ -97,12 +98,14 @@ describe('useref()', function() {
     });
 
     it('should emit error on streamed file', done => {
-        gulp.src(path.join('test', 'fixtures', '01.html'), { buffer: false })
-            .pipe(useref({ noAssets: true }))
-            .on('error', ({message}) => {
-                message.should.equal('Streaming not supported');
+        pipeline(
+            gulp.src(path.join('test', 'fixtures', '01.html'), { buffer: false }),
+            useref({ noAssets: true }),
+            error => {
+                should(error).have.property('message', 'Streaming not supported');
                 done();
-            });
+            }
+        );
     });
 
     it('should replace reference in css block and return replaced files', done => {
