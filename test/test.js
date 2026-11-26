@@ -335,6 +335,51 @@ describe('useref()', function() {
         stream.end();
     });
 
+    it('should support per type newLine options', done => {
+        let a = 0;
+        const testFile = getFixture('13.html');
+        const jsSeparator = ';';
+        const cssSeparator = '\n';
+        const stream = useref({
+            newLine: {
+                js: jsSeparator,
+                css: cssSeparator
+            }
+        });
+        const bufferJS1 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'this.js')));
+        const bufferJS2 = Buffer.from(jsSeparator);
+        const bufferJS3 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'scripts', 'that.js')));
+        const bufferJSFinal = Buffer.concat([bufferJS1, bufferJS2, bufferJS3]);
+        const fileJSFinal =  new Vinyl({ contents: bufferJSFinal });
+
+        const bufferCSS1 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'css', 'one.css')));
+        const bufferCSS2 = Buffer.from(cssSeparator);
+        const bufferCSS3 = Buffer.from(fs.readFileSync(path.join('test', 'fixtures', 'css', 'two.css')));
+        const bufferCSSFinal = Buffer.concat([bufferCSS1, bufferCSS2, bufferCSS3]);
+        const fileCSSFinal =  new Vinyl({ contents: bufferCSSFinal });
+
+        stream.on('data', newFile => {
+            if (a === 1) {
+                newFile.path.should.equal(path.normalize('./test/fixtures/css/combined.css'));
+                newFile.contents.toString().should.equal(fileCSSFinal.contents.toString());
+            }
+            if (a === 2) {
+                newFile.path.should.equal(path.normalize('./test/fixtures/scripts/combined.js'));
+                newFile.contents.toString().should.equal(fileJSFinal.contents.toString());
+            }
+            ++a;
+        });
+
+        stream.once('end', () => {
+            a.should.equal(3);
+            done();
+        });
+
+        stream.write(testFile);
+
+        stream.end();
+    });
+
     it('should skip concatenation and pass JS assets through with noconcat option', done => {
         let a = 0;
 
