@@ -1,16 +1,17 @@
 /* eslint-disable */
 const { spawn } = require('child_process');
+const { dirname, join } = require('path');
 const gulp = require('gulp');
-const eslint = require('gulp-eslint');
+
+const eslintCli = join(dirname(require.resolve('eslint/package.json')), 'bin/eslint.js');
 
 const paths = {
     scripts: ['./*.js', './lib/*.js', '!./gulpfile.js']
 };
 
-gulp.task('lint', () => gulp.src(paths.scripts)
-    .pipe(eslint({fix: true}))
-    .pipe(eslint.format())
-    .pipe(eslint.failAfterError()));
+gulp.task('lint', () => spawn(process.execPath, [eslintCli, '--fix-dry-run', '*.js', 'lib/*.js'], {
+    stdio: 'inherit'
+}));
 
 gulp.task('test', () => spawn(process.execPath, [require.resolve('mocha/bin/mocha')], {
     stdio: 'inherit'

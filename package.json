@@ -18,10 +18,11 @@
     "vinyl-fs": "^3.0.3"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "async-once": "^1.0.1",
-    "babel-eslint": "^10.1.0",
+    "eslint": "^9.39.5",
+    "globals": "^17.14.0",
     "gulp": "^4.0.2",
-    "gulp-eslint": "^6.0.0",
     "gulp-rename": "^2.0.0",
     "mocha": "^12.0.3",
     "mock-gulp-dest": "^0.1.1",
