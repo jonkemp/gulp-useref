@@ -1,6 +1,6 @@
 /* eslint-disable */
+const { spawn } = require('child_process');
 const gulp = require('gulp');
-const mocha = require('gulp-mocha');
 const eslint = require('gulp-eslint');
 
 const paths = {
@@ -12,8 +12,9 @@ gulp.task('lint', () => gulp.src(paths.scripts)
     .pipe(eslint.format())
     .pipe(eslint.failAfterError()));
 
-gulp.task('test', () => gulp.src('./test/*.js')
-    .pipe(mocha({ reporter: 'spec' })));
+gulp.task('test', () => spawn(process.execPath, [require.resolve('mocha/bin/mocha')], {
+    stdio: 'inherit'
+}));
 
 gulp.task('watch', () => {
     gulp.watch(paths.scripts, gulp.parallel('lint', 'test'));
