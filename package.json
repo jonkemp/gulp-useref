@@ -20,7 +20,6 @@
   "devDependencies": {
     "async-once": "^1.0.1",
     "babel-eslint": "^10.1.0",
-    "coveralls": "^3.1.1",
     "gulp": "^4.0.2",
     "gulp-eslint": "^6.0.0",
     "gulp-rename": "^2.0.0",
