@@ -18,7 +18,7 @@
     "vinyl-fs": "^3.0.3"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.5",
+    "@eslint/js": "^10.0.1",
     "async-once": "^2.0.0",
     "eslint": "^9.39.5",
     "globals": "^17.14.0",
