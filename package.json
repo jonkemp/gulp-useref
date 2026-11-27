@@ -28,7 +28,7 @@
     "mock-gulp-dest": "^0.1.1",
     "nyc": "^18.0.0",
     "should": "*",
-    "vinyl": "^2.2.1"
+    "vinyl": "^3.0.1"
   },
   "engines": {
     "node": ">=0.10.0"
